@@ -1,38 +1,39 @@
 % !TeX root = ../thuthesis-example.tex
 
-\chapter{图表示例}
+\chapter{Sequence-based Methods}
 
-\section{插图}
+\section{Introduction}
 
-图片通常在 \env{figure} 环境中使用 \cs{includegraphics} 插入，如图~\ref{fig:example} 的源代码。
-建议矢量图片使用 PDF 格式，比如数据可视化的绘图；
-照片应使用 JPG 格式；
-其他的栅格图应使用无损的 PNG 格式。
-注意，LaTeX 不支持 TIFF 格式；EPS 格式已经过时。
+As of today, only sequence-based model exists for the prediction of the Michaelis constant. Some (Km pred1) use
+simple embeddings to represent the protein sequences. Other such as (ENKIE) use Bayesian Multilevel Models (BMMs)
+to capture a simple hierarchy of enzyme properties. Finally, the state-of-the-art model ProSmith pre-trains a
+large enzyme-specific protein models and uses embeddings from existing large protein models. 
+
+In this chapter, we present SeqKm a deep learning model that makes use of existing large protein models without
+pretraining. This not allows for fast training and prediction as there is no need for pretraining but also
+offer better performances by leveraging the protein knowledge retained by large protein models.
+
+To demonstrate our method applicability to Michaelis constant prediction, we analyze the sequence-based
+model performance compared to the state-of-the-art model in this field, ProSmith. Even though this model
+does not outperform ProSmith, it shows equal performances on the new curated test set, indicating our
+model's better ability to generalize and showing promissing results for the ensemble method.
+
+\section{Methods}
+
+We now describe our input representation, model achitecture, training details, and test. 
+Figure \ref{fig:seqkm} provides an overview of our method.
 
 \begin{figure}
   \centering
-  \includegraphics[width=0.5\linewidth]{example-image-a.pdf}
-  \caption*{国外的期刊习惯将图表的标题和说明文字写成一段，需要改写为标题只含图表的名称，其他说明文字以注释方式写在图表下方，或者写在正文中。}
-  \caption{示例图片标题}
-  \label{fig:example}
+  \includegraphics[width=1\linewidth]{2-sequence_architecture.png}
+  \caption{Overview of SeqKm}
+  \label{fig:seqkm}
 \end{figure}
 
-若图或表中有附注，采用英文小写字母顺序编号，附注写在图或表的下方。
-国外的期刊习惯将图表的标题和说明文字写成一段，需要改写为标题只含图表的名称，其他说明文字以注释方式写在图表下方，或者写在正文中。
 
-如果一个图由两个或两个以上分图组成时，各分图分别以 (a)、(b)、(c)...... 作为图序，并须有分图题。
-推荐使用 \pkg{subcaption} 宏包来处理， 比如图~\ref{fig:subfig-a} 和图~\ref{fig:subfig-b}。
 
-\begin{figure}
-  \centering
-  \subcaptionbox{分图 A\label{fig:subfig-a}}
-    {\includegraphics[width=0.35\linewidth]{example-image-a.pdf}}
-  \subcaptionbox{分图 B\label{fig:subfig-b}}
-    {\includegraphics[width=0.35\linewidth]{example-image-b.pdf}}
-  \caption{多个分图的示例}
-  \label{fig:multi-image}
-\end{figure}
+
+
 
 
 

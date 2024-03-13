@@ -1,78 +1,176 @@
 % !TeX root = ../thuthesis-example.tex
 
-\chapter{论文主要部分的写法}
+\chapter{Introduction}
 
-研究生学位论文撰写，除表达形式上需要符合一定的格式要求外，内容方面上也要遵循一些共性原则。
+Enzymes are proteins that catalyze biological reactions. They accelerate reactions 
+to a speed that supports metabolic processes necessary for life. 
+Understanding how enzymes work is crucial not only for grasping fundamental 
+biological mechanisms but also for advancing medical science, 
+particularly in the development of new pharmaceuticals and the engineering 
+of enzymes with enhanced properties.
 
-通常研究生学位论文只能有一个主题（不能是几块工作拼凑在一起），该主题应针对某学科领域中的一个具体问题展开深入、系统的研究，并得出有价值的研究结论。
-学位论文的研究主题切忌过大，例如，“中国国有企业改制问题研究”这样的研究主题过大，因为“国企改制”涉及的问题范围太广，很难在一本研究生学位论文中完全研究透彻。
+In order to design effective drugs or improve enzyme functions, 
+one major challenge is the selection of the most promising compounds 
+from a vast array of possibilities. 
+Laboratory testing is costly and time-consuming. To reduce the possibilities,
+using kinetic information can become a promising solution.
 
+A key parameter in enzyme kinetics is the Michaelis constant ($K_m$). It represents
+the substrate concentration at which the initial velocity of the reaction is half of
+the maximum velocity. Generally, the lower the value, the higher is the affinity 
+between the enzyme and the substrate.
 
+Predicting the Michaelis constant can significantly accelerate the drug design process. 
+By estimating an enzyme's affinity for various substrates and similarly, several enzymes
+with one substrate, researchers can prioritize compounds for further development, 
+thereby reducing the need for extensive laboratory testing. 
+This approach not only facilitates the discovery of new drugs but also enhances 
+our ability to engineer enzymes with desired characteristics.
 
-\section{论文的语言及表述}
+\section{Problem statement}
 
-除国际研究生外，学位论文一律须用汉语书写。
-学位论文应当用规范汉字进行撰写，除古汉语研究中涉及的古文字和参考文献中引用的外文文献之外，均采用简体汉字撰写。
+The goal of this work is to build a statistical regression model that predict the 
+Michaelis constant given on 2 inputs: the protein sequence and the substrate string. 
 
-国际研究生一般应以中文或英文书写学位论文，格式要求同上。
-论文须用中文封面。
+The performance of the model will be evaluated with the mean squared error (MSE) and 
+the coefficient of determination $r^2$.
 
-研究生学位论文是学术作品，因此其表述要严谨简明，重点突出，专业常识应简写或不写，做到立论正确、数据可靠、说明透彻、推理严谨、文字凝练、层次分明，避免使用文学性质的或带感情色彩的非学术性语言。
+\section{Literature review}
 
-论文中如出现一个非通用性的新名词、新术语或新概念，需随即解释清楚。
+Given the interdisciplinary nature of this thesis, which involves biological, chemical, and 
+computer sciences, the literature review will be structured in the following way.
 
+First, the reader will be provided with the biological and chemical fundamentals necesarry to understand basic aspects
+of enzyme kinetics. This foundation is essential to comprehend the biological processes at play and
+their relevance to our work.
 
+Second, machine learning and deep learning methodologies, emphasizing on their biological
+applications, will be presented. This section aims to present how statistical models can be used to decipher complex biological
+data, hence allowing us to build innovative solutions in enzyme and drug design.
 
-\section{论文题目的写法}
+Finally, a specific focus on the current state of research regarding the prediction of the Michaelis 
+constant ($K_m$) will be provided. This aim of this part is there to highlight the current contributions to 
+our problem statement, the current state-of-the-art methods used, and their results.
 
-论文题目应简明扼要地反映论文工作的主要内容，力求精炼、准确，切忌笼统。
-论文题目是对研究对象的准确、具体描述，一般要在一定程度上体现研究结论，因此，论文题目不仅应告诉读者这本论文研究了什么问题，更要告诉读者这个研究得出的结论。
-例如：“在事实与虚构之间：梅乐、卡彭特、沃尔夫的新闻观”就比“三个美国作家的新闻观研究”更专业、更准确。
+Through this comprehensive review,the solid background provided will ensure the relevance of this thesis
+contribution in the field of drug design. 
 
+\subsection{Biological and Chemistry Background}
+\subsubsection{Proteins}
+Proteins impact all the processes that take place in a cell, with an almost
+endless diversity of functions. They are the most abundant biological macromolecules.
+Thousands of different types of proteins can be found in a single cell. They are the molecular
+instruments through which genetic information is expressed.\cite{lehninger}.
 
+A protein is a sequence of smaller molecules called amino acids that are covalently joined by a peptide
+bond. There exists 20 common amino acids (Figure \ref{fig:20aa}) from which almost all proteins are made of. Each amino acid has
+a side chain with distinctive chemical properties.
 
-\section{摘要的写法}
+\begin{figure}
+  \centering
+  \includegraphics[width=0.7\linewidth]{1-amino_acids.png}
+  \caption{The 20 common amino acids}
+  % https://www.google.com.hk/url?sa=i&url=https%3A%2F%2Fbyjus.com%2Fbiology%2Famino-acids%2F&psig=AOvVaw1r9URV_-jl8bxr1TZ5ehjk&ust=1710296952635000&source=images&cd=vfe&opi=89978449&ved=0CBMQjRxqFwoTCIjpnuXW7YQDFQAAAAAdAAAAABAE
+  \label{fig:20aa}
+\end{figure}
 
-论文摘要是对论文研究内容的高度概括，应具有独立性和自含性，即应是 一篇简短但意义完整的文章。
-通过阅读论文摘要，读者应该能够对论文的研究 方法及结论有一个整体性的了解，因此摘要的写法应力求精确简明。
-论文摘要 应包括对问题及研究目的的描述、对使用的方法和研究过程进行的简要介绍、 对研究结论的高度凝练等，重点是结果和结论。
+All common amino acids are $\alpha$-amino acids. This means that both the carboxyl group and the amino group
+is bonded to the same carbon atom called the $\alpha$-carbon (Figure \ref{fig:aastructure}). The amino acids differ from each others in
+their side chains, also called R-groups, which vary in size, structure, electronic charge, and which
+influence the solubility of the amino acids in water.
 
-论文摘要切忌写成全文的提纲，尤其要避免“第 1 章……；第 2 章……；……”这样的陈述方式。
+\begin{figure}
+  \centering
+  \includegraphics[width=0.3\linewidth]{1-amino_acid_structure.png}
+  \caption{Amino acid structure}
+  % https://www.google.com.hk/url?sa=i&url=https%3A%2F%2Fen.wikipedia.org%2Fwiki%2FAmino_acid&psig=AOvVaw1uUyMqtMb_u6DnLzN1XZTr&ust=1710297308181000&source=images&cd=vfe&opi=89978449&ved=0CBMQjRxqFwoTCOiroY7Y7YQDFQAAAAAdAAAAABAD
+  \label{fig:aastructure}
+\end{figure}
 
+Two amino acids can be joined together with a covalent bond that is called a peptide bond. This link
+is formed by the removal of the element of water (a hydroxyl group from the $\alpha$-carboxyl group
+of one amino acid and a hydrogen atom from the $\alpha$-amino group of another amino acid. Figure 
+\ref{fig:peptidebond}). These joined amino acids are called residues, relfecting the loss of the element
+of water during the bonding formation.
 
+\begin{figure}
+  \centering
+  \includegraphics[width=0.5\linewidth]{1-peptide_bond.jpeg}
+  \caption{Peptide bond}
+  %https://www.chemistrylearner.com/wp-content/uploads/2020/10/Peptide-Bond.jpg
+  \label{fig:peptidebond}
+\end{figure}
 
-\section{引言的写法}
+An oligopeptide is the structure of a few amino acids joined together and a polypeptide is the name
+given to the structure when many amino acids are joined. Proteins may have thousands of amino acids residues.
 
-一篇学位论文的引言大致包含如下几个部分：
-1、问题的提出；
-2、选题背 景及意义；
-3、文献综述；
-4、研究方法；
-5、论文结构安排。
-\begin{itemize}
-  \item 问题的提出：要清晰地阐述所要研究的问题“是什么”。
-    \footnote{选题时切记要有“问题意识”，不要选不是问题的问题来研究。}
-  \item 选题背景及意义：论述清楚为什么选择这个题目来研究，即阐述该研究对学科发展的贡献、对国计民生的理论与现实意义等。
-  \item 文献综述：对本研究主题范围内的文献进行详尽的综合述评，“述”的同时一定要有“评”，指出现有研究状态，仍存在哪些尚待解决的问题，讲出自己的研究有哪些探索性内容。
-  \item 研究方法：讲清论文所使用的学术研究方法。
-  \item 论文结构安排：介绍本论文的写作结构安排。
-\end{itemize}
+For proteins, the amino acid residues at the end are the $\alpha$-amino group called N-terminal and 
+the $\alpha$-carboxyl group called C-terminal. The N-terminal is conventionally placed on the left while
+the C-terminal is placed on the right.
 
+The functions of proteins do not depend on their length or molecular weight. Some very small proteins 
+(2 to 10 amino acids) can be extremely important such as toxic mushroom poisons or antibiotics (example + ref). The
+length of proteins can vary enourmously from 2 to 27,000 amino acids, while the vast majority of proteins
+usually contain fewer than 2,000 amino acids.
 
+Some proteins are made of only one polypeptide chain while other can be made out of several, they are 
+called mutlisubunit proteins, such as hemoglobin (example + ref).
 
-\section{正文的写法}
+Some proteins also contain chemical groups other than amino acids. They are called conjugated proteins.
+The non-amino acid part of these proteins is called its prosthetic group and is essential to the protein
+overall functions, such as hemoglobin and its ferrous group without which it does not function properly 
+(check this + example + ref)
 
-本部分是论文作者的研究内容，不能将他人研究成果不加区分地掺和进来。
-已经在引言的文献综述部分讲过的内容，这里不需要再重复。
-各章之间要存在有机联系，符合逻辑顺序。
+\subsubsection{Enzymes}
+Enzymes are specific proteins that accelerate the rate of reactions. They are essential to life as many
+of the chemical reactions essential to our survival need to be accelerated, such as the conversion of sugar.
+(add example). 
 
+xxx
+\subsubsection{Substrates}
+Substrates are the small molecules that interact with enzymes.
 
+xxx
+\subsubsection{Enzyme Kinetics}
+kcat and Km
 
-\section{结论的写法}
+\subsection{Machine and Deep Learning for Drug Discovery}
+\subsubsection{Traditional approaches}
+\subsubsection{Machine Learning approaches}
+\subsubsection{Neural Networks}
+\subsubsection{Protein Language Models}
+\subsubsection{Graph Neural Networks}
 
-结论是对论文主要研究结果、论点的提炼与概括，应精炼、准确、完整，使读者看后能全面了解论文的意义、目的和工作内容。
-结论是最终的、总体的结论，不是正文各章小结的简单重复。
-结论应包括论文的核心观点，主要阐述作者的创造性工作及所取得的研究成果在本领域中的地位、作用和意义，交代研究工作的局限，提出未来工作的意见或建议。
-同时，要严格区分自己取得的成果与指导教师及他人的学术成果。
+\subsection{Michaelis constant prediction}
+\subsubsection{Current methods}
+\subsubsection{State-of-the-art model performances}
 
-在评价自己的研究工作成果时，要实事求是，除非有足够的证据表明自己的研究是“首次”、“领先”、“填补空白”的，否则应避免使用这些或类似词语。
+\section{Methodology}
+This research will be composed of a data preprocessing step, a model implementation step, and an
+evaluation step.
+\subsection{Data preprocessing}
+In this work, we will use a dataset curated by (Prosmith), using data from BRENDA (ref) which is a
+xxxxxx (explainantion of the database).
+The data used is up to 2022. Therefore, we will augment their dataset with a new test set composed of
+the data from 2022 to January 2024, allowing a better testing of the current methods and the validation
+of this work.
+The data will be processed in a way to obtain 3 elements: the protein sequence, the substrate string,
+and the Michaelis constant value.
+\subsection{Model implementation}
+The model implementation will be composed of 3 parts. The first one will be the creation of an architecture
+for the sequence-based model, the for the structure-based model, and finally for the ensemble model using both
+the sequence-based and the structure-based model.
+\subsection{Model evaluation}
+The 3 models of this work (sequence-based model, structure-based model, and sequence-structure-based model)
+will be evaluated on the ProSmith test set as well as our newly curated test set. The evaluation metrics 
+wil be the mean squared error (MSE) and the coefficient of determination $r^2$.
+
+Not only will this work evaluate these metrics in the general sense but it will also provide a more specific
+set of these metrics based on the data: the protein sequences and the substrates strings will be divided into
+4 groups based on their appearance in the training set. Proteins that have been seen in the training set
+will be denoted "hot proteins" and the ones that are not in the training set "cold proteins". Similarly, 
+subrates included in the training set will be denoted "hot substrates" and "cold substrates" if they
+are not.
+
+These 4 groups will allow a better comparison of this work method and the state-of-the-art methods.
+
