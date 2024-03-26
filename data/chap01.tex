@@ -5,7 +5,7 @@
 
 Enzymes are proteins that catalyze biological reactions. They accelerate reactions 
 to a speed that supports metabolic processes necessary for life. 
-Understanding how enzymes work is crucial not only for grasping fundamental 
+Understanding how enzymes work is crucial not only for understanding fundamental 
 biological mechanisms but also for advancing medical science, 
 particularly in the development of new pharmaceuticals and the engineering 
 of enzymes with enhanced properties.
@@ -34,14 +34,14 @@ The goal of this work is to build a statistical regression model that predict th
 Michaelis constant given 2 inputs: the protein sequence and the substrate string. 
 
 The performance of the model will be evaluated with the mean squared error (MSE) and 
-the coefficient of determination $r^2$.
+the coefficient of determination $r^2$, following current evaluation techniques for this task.
 
 \section{Literature review}
 
 Given the interdisciplinary nature of this thesis, which involves biological, chemical, and 
 computer sciences, the literature review will be structured in the following way.
 
-First, the reader will be provided with the biological and chemical fundamentals necesarry to understand basic aspects
+First, we introduce the biological and chemical fundamentals necessary to understand basic aspects
 of enzyme kinetics. This foundation is essential to comprehend the biological processes at play and
 their relevance to our work.
 
@@ -49,8 +49,8 @@ Second, machine learning and deep learning methodologies, emphasizing on their b
 applications, will be presented. This section aims to present how statistical models can be used to decipher complex biological
 data, hence allowing us to build innovative solutions in enzyme and drug design.
 
-Finally, a specific focus on the current state of research regarding the prediction of the Michaelis 
-constant ($K_m$) will be offered. The aim of this part is to highlight the current contributions to 
+Finally, we delve into the current state of research regarding the prediction of the Michaelis 
+constant ($K_m$). The aim of this part is to highlight the current contributions to 
 our problem statement, the current state-of-the-art methods used, and their results.
 
 Through this comprehensive review,the solid background provided will ensure the relevance of this thesis
@@ -61,7 +61,7 @@ contribution in the field of drug design.
 Proteins impact all the processes that take place in a cell, with an almost
 endless diversity of functions. They are the most abundant biological macromolecules.
 Thousands of different types of proteins can be found in a single cell. They are the molecular
-instruments through which genetic information is expressed.\cite{lehninger}.
+instruments through which genetic information is expressed.\cite{lehninger}
 
 A protein is a sequence of smaller molecules called amino acids that are covalently joined by a peptide
 bond. There exists 20 common amino acids (Figure \ref{fig:20aa}) from which almost all proteins are made of. Each amino acid has
@@ -70,8 +70,7 @@ a side chain with distinctive chemical properties.
 \begin{figure}
   \centering
   \includegraphics[width=0.7\linewidth]{1-amino_acids.png}
-  \caption{The 20 common amino acids}
-  % https://www.google.com.hk/url?sa=i&url=https%3A%2F%2Fbyjus.com%2Fbiology%2Famino-acids%2F&psig=AOvVaw1r9URV_-jl8bxr1TZ5ehjk&ust=1710296952635000&source=images&cd=vfe&opi=89978449&ved=0CBMQjRxqFwoTCIjpnuXW7YQDFQAAAAAdAAAAABAE
+  \caption{The 20 common amino acids. Adapted from \citeauthor{BYJUsAminoAcids}.}
   \label{fig:20aa}
 \end{figure}
 
@@ -82,9 +81,8 @@ influence the solubility of the amino acids in water.
 
 \begin{figure}
   \centering
-  \includegraphics[width=0.3\linewidth]{1-amino_acid_structure.png}
-  \caption{Amino acid structure}
-  % https://www.google.com.hk/url?sa=i&url=https%3A%2F%2Fen.wikipedia.org%2Fwiki%2FAmino_acid&psig=AOvVaw1uUyMqtMb_u6DnLzN1XZTr&ust=1710297308181000&source=images&cd=vfe&opi=89978449&ved=0CBMQjRxqFwoTCOiroY7Y7YQDFQAAAAAdAAAAABAD
+  \includegraphics[width=0.7\linewidth]{1-amino_acid_structure.png}
+  \caption{Amino acid structure. Adapted from \citeauthor{BYJUsAminoAcidsStructure}.}
   \label{fig:aastructure}
 \end{figure}
 
@@ -96,9 +94,8 @@ of water during the bonding formation.
 
 \begin{figure}
   \centering
-  \includegraphics[width=0.5\linewidth]{1-peptide_bond.jpeg}
-  \caption{Peptide bond}
-  %https://www.chemistrylearner.com/wp-content/uploads/2020/10/Peptide-Bond.jpg
+  \includegraphics[width=0.7\linewidth]{1-peptide_bond.jpeg}
+  \caption{Peptide bond. Adapted from \citeauthor{ChemistryLearnerPeptideBond}.}
   \label{fig:peptidebond}
 \end{figure}
 
@@ -109,50 +106,428 @@ For proteins, the amino acid residues at the end are the $\alpha$-amino group ca
 the $\alpha$-carboxyl group called C-terminal. The N-terminal is conventionally placed on the left while
 the C-terminal is placed on the right.
 
-The functions of proteins do not depend on their length or molecular weight. Some very small proteins 
-(2 to 10 amino acids) can be extremely important such as toxic mushroom poisons or antibiotics (example + ref). The
-length of proteins can vary enourmously from 2 to 27,000 amino acids, while the vast majority of proteins
-usually contain fewer than 2,000 amino acids.
+The functions of proteins do not depend on their length or molecular weight. \cite{Alberts2002ProteinFunction} Some very small proteins 
+(2 to 10 amino acids) can be extremely important such as insuline, a hormone crucial for regulating blood sugar levels. 
+Although human insulin consists of 51 amino acids (making it relatively light and small compared to many other proteins), 
+it plays a vital role in metabolism. \cite{Steiner1985} The length of proteins can vary enourmously 
+from 2 to 27,000 amino acids, while the vast majority of proteins usually contain fewer than 2,000 amino acids.
 
 Some proteins are made of only one polypeptide chain while other can be made out of several, they are 
-called mutlisubunit proteins, such as hemoglobin (example + ref).
+called mutlisubunit proteins, such as hemoglobin which is composed of four polypetide chains (two alpha
+and two beta chains) and iron-containing heme groups. \cite{Perutz1970} 
+It is essential for oxygen transport in the blood.
+
+\begin{figure}
+  \centering
+  \includegraphics[width=0.7\linewidth]{1-hemoglobin.png}
+  \caption{(a) Hemoglobin molecule. (b) Heme iron. Adapted from \citeauthor{ALevelBiologyHemoglobin}.}
+  \label{fig:hemoglobin}
+\end{figure}
 
 Some proteins also contain chemical groups other than amino acids. They are called conjugated proteins.
 The non-amino acid part of these proteins is called its prosthetic group and is essential to the protein
-overall functions, such as hemoglobin and its ferrous group without which it does not function properly 
-(check this + example + ref)
+overall functions. Chlorophyll, a protein essential for photosynthesis by allowing plants to absorb energy
+from light is a perfect example. \cite{Photosynthesis}
+
+The vast diversity in protein structure, from simple monomeric forms to complex multisubunit 
+configurations, underlines their ability to perform a wide array of biological functions. 
+Beyond structural roles and hormone regulation, proteins are pivotal in catalyzing biochemical 
+reactions, a role exemplified by enzymes. Enzymes, a specialized class of proteins, are a perfect example of the 
+functional versatility of proteins. 
 
 \subsubsection{Enzymes}
+\label{section:enzyme}
 Enzymes are specific proteins that accelerate the rate of reactions. They are essential to life as many
-of the chemical reactions essential to our survival need to be accelerated, such as the conversion of sugar.
-(add example). 
+of the chemical reactions essential to our survival need to be accelerated, such as lipases that are 
+a group of proteins that helps digest fats in the gut. \cite{Pirahanchi2023Lipase} 
+They are also essential to regulate the vast network of metabolic pathways necessary for life. An example
+of this is the enzyme phosphofructokinase (PFK) which regulates glycolisis, the production of glucose
+based on the cell requirements. \cite{Kanai2019Phosphofructokinase}
+
+With the exception of a few classes of catalytic RNA molecules, enzymes are proteins. 
+Their catalytic activity depends on the integrity of their native protein conformation. 
+
+If an enzyme is denatured or dissociated into its subunits, catalytic activity is usually lost. 
+The catalytic activity of each enzyme is deeply linked to its primary, secondary, tertiary, 
+and quaternary protein structure.
+
+Some enzymes require a chemical component called cofactor - either one or more inorganic ions 
+such as Fe2+, Mg2+, Mn2+ or Zn2+, or a complex organic or metalloorganic molecule called coenzyme. 
+Coenzymes act as transient carriers of specific functional groups. Most are derived from vitamins.
+Some enzymes require both a coenzyme and one or more metal ions for activity. A coenzyme or metal ion 
+that is very tightly or even covalently bound to the enzyme protein is called a prosthetic group. 
+A complete catalytically active enzyme with its bound coenzyme/or metal ion(s) is called a holoenzyme. 
+The protein part of such an enzyme is called the apoenzyme or apoprotein.
+
+While many enzymes have the suffix "-ase" to the name of their substrate or to a word describing
+their activity, there exists a convention system to classify all enzymes, it is called the Enzyme Commission
+(EC) system. \cite{EC} It divides enzymes into 7 classes, each with subclasses, based on the type of reaction
+catalyzed. Each enzyme is assigned a 4-part classification number and a systematic name, which
+identify the reaction it catalyzes.
+
+\begin{table}[h!]
+  \centering
+  \begin{tabular}{ll}
+  \hline
+  \textbf{Number} & \textbf{Name} \\
+  \hline
+  1 & Oxidoreductases \\
+  \hline
+  2 & Transferases \\
+  \hline
+  3 & Hydrolases \\
+  \hline
+  4 & Lyases \\
+  \hline
+  5 & Isomerases \\
+  \hline
+  6 & Ligases \\
+  \hline
+  7 & Translocases \\
+  \hline
+  \end{tabular}
+  \caption{Enzyme Commission Number and Names}
+  \label{table:enzyme_names}
+  \end{table}  
+
+Under biologically relevant conditions, uncatalyzed reactions tend to be slow as most biological molecules
+are quite stable in the neutral-pH, mild-temperature, aqueous environment inside cells.
+
+What is special about enzyme-catalyzed reaction is that they take place in a pocket on the enzyme
+which is called the active site. It provides a specific environment, customized by evolution, in which
+a given reaction can occur more rapidly. 
+The molecule that is bound in the active site and acted upon by the enzyme is called the substrate.
+The surface of the active side is made of amino acid residues with R-groups that can bind the 
+substrate and catalyze its chemical transformation. The substrate is often enclosed by the active site, 
+sequestered completely from the solution.
+The enzyme-substrate complex is central to the action of enzymes and is also the basis for kinetics models.
+
+An enzymatic reaction can be describe as $E+S=ES=EP=E+P$ where $E$, $S$, and $P$ represent the enzyme,
+substrate, and product respectively. $ES$ and $EP$ are transient complexes of the enzyme with the substrate
+and with the product. The function of a catalyst is to increase the rate of reaction. It does not affect
+reaction equilibria. 
+
+In the coordinate diagram, the free energy of the system is plotted against the progress of the reaction. 
+The starting point for either the forward reaction or the reverse reaction is called the ground state.
+
+\begin{figure}
+  \centering
+  \includegraphics[width=0.7\linewidth]{1-coordinate_diagram.png}
+  \caption{On the left, the coordinate diagram of an uncatalized reaction. On the right, the coordinate diagram of a enzyme-catalyzed reaction. Adapted from \citeauthor{lehninger}}
+  \label{fig:coordinate_diagram}
+\end{figure}
+
+As a convention, we express the standard free-energy change $\Delta G˚$ at 298K, 
+1atm for each gas, and concentration of each solute 1M.
+
+Because biochemical systems commonly involve H+ concentration far below 1M, we define 
+a biochemical standard free-energy change $\Delta G'˚$, the standard free-energy 
+change at pH 7.
+
+The equilibrium between S and P reflects the difference in the free energies of their ground states. 
+Here, the free energy of the ground state P is lower than that of S so $\Delta G'˚$ is 
+negative (exergonic reaction) and at equilibrium there is more P than S.
+
+A favorable equilibrium does not mean that the S→P conversion will occur rapidly. The rate of a 
+reaction depends on a completely different parameter: the energy barrier between S and P. It consists 
+of the energy required for the alignment of reacting groups, formation of transient unstable charges, 
+bond rearrangements, and other transformations required for the reaction to proceed in either direction.
+
+To undergo reaction, the molecules must overcome this barrier and therefore be raised to a higher 
+energy level. At the top of the energy hill is a point at which decay to the S or P state is 
+equally probable (downhill either way). This is called the transition state ($\ddag$).
+
+The transition state is not a chemical species with any significant stability and should not be 
+confused with a reaction intermediate such as ES or EP. It is simply a fleeting molecular moment 
+in which events such as bond breakage, bond formation, and charge development have proceeded to the 
+precise point at which decay to substrate and decay to product are equally likely. 
+
+The difference between the energy level of the ground state and the energy level of the 
+transition state is the activation energy $\Delta G^\ddag$. The rate of a reaction reflects 
+this activation energy: a higher activation energy corresponds to a slower reaction. Hence 
+lowering the activation energy increases the rate of reaction. 
+
+This can be done by raising the temperature or pressure, thereby increasing the number 
+of molecules with sufficient energy to overcome the energy barrier. It can also be done by adding a 
+catalyst that lower the activation energy, which is what enzymes do. 
+Catalysts do not affect reaction equilibria. The role of enzymes is to accelerate the 
+interconversion of S and P. 
+
+Any reaction may have several steps, involving the formation and decay of transient chemical 
+species called reaction intermediates.
+A reaction intermediate is any species on the reaction pathway that has a 
+finite chemical lifetime (longer than a molecular vibration ~$10^{-13}$ second). When 
+the $S=P$ reaction is catalyzed by an enzyme, the $ES$ and $EP$ complexes can be considered intermediates, 
+even though S and P are stable chemical species. 
+Additionally, less-stable chemical intermediates often exist in the course of an enzyme-catalyzed 
+reaction. The interconversion of 2 sequential reaction intermediates thus constitutes a reaction step.
+When several steps occur in a reaction, the overall rate is determined by the step(s) with 
+the highest activation energy; this is called the rate-limiting step. 
+It is the highest-energy point in the diagram for the interconversion of S and P. It can vary 
+with reaction conditions, and for many enzymes several steps may have similar activation energies, 
+which means they are all partially rate-limiting.
+
+Activation energies are energy barriers to chemical reactions. They are crucial to life 
+itself. Without such energy barriers, complex macromolecules would revert spontaneously 
+to much simpler molecular form, and the complex and highly ordered structures and metabolic 
+processes of cells could not exist.
+
 
 \subsubsection{Pocket detection}
 xxxx
 
-
-\subsubsection{Substrates}
-Substrates are the small molecules that interact with enzymes.
-
-xxx
 \subsubsection{Enzyme Kinetics}
-kcat and Km
+At all time in an enzyme-catalyzed reaction, the enzyme exists in 2 forms: the free and uncombined 
+form $E$ and the substrate-combined form $ES$.
+When the enzyme is first mixed with with a large excess of substrate, there is an initial 
+transient period, the pre-steady state, where the concentration of $ES$ accumulates.
+For most enzymatic reactions, this period is very brief, frequently too short to be observed easily, 
+lasting only the time required to convert one molecule of substrate to product.
+The reaction then achieves a steady state, in which $[ES]$ remains approximately constant for much of 
+the remainder of the reaction. As most of the reaction reflects the steady state, the traditional 
+analysis of reaction rates is referred to as steady-state kinetics.
+
+A key factor affecting the rate of a reaction catalyzed by an enzyme is the concentration 
+of substrate, $[S]$.
+It is hard to study the effects of substrate concentration because $[S]$ changes 
+during the course of an in vitro reaction as substrate is converted to product. 
+One approach is to measure the initial rate, $V_0$.
+
+At the beginning of the reaction, we can consider the concentration of $[S]$ constant and
+ $V_0$ increases almost linearly with an increase in $[S]$. 
+At higher substance concentrations, $V_0$ increases by smaller and smaller amounts, in response 
+to an increase in $[S]$. Finally, a point is reached beyond which increases in $V_0$ are 
+vanishingly small as $[S]$ increases. This plateau-like $V_0$ region is close to the 
+maximum velocity, $V_{max}$.
+
+\begin{figure}
+  \centering
+  \includegraphics[width=0.7\linewidth]{1-mm_curve.jpeg}
+  \caption{Michaelis-Menten kinetics. Adapted from \citeauthor{lehninger}}
+  \label{fig:mm_curve}
+\end{figure}
+
+The ES complex is key to understanding this kinetic behavior. There are two equations: $E+S=ES$ 
+and $ES(=EP)=E+P$ with the formation of the complex and then formation of the product.
+The second reaction is slower and limits the rate of the overall reaction. 
+Then, the overall rate must be proportional to the concentration of the species that reacts in 
+the second step, that is $ES$.
+
+At low $[S]$, most of the enzyme is in the uncombined form $E$.
+The maximum initial rate of the catalyzed reaction Vmax is observed when virtually all the enzyme 
+is present as the ES complex and $[E]$ is very small.
+Under these conditions, the enzyme is “saturated” with its substrate, so that further increases 
+in $[S]$ has no effect on the rate. $[S]$ needs to besufficiently high so that the enzyme is 
+mostly in the $ES$ form.
+After the $ES$ complex breaks down to yield the product $P$, the enzyme is free to catalyze the reaction 
+of another molecule of substrate (and will do so rapidly under saturating conditions). The saturation 
+effect is a distinguishing characteristic of enzymatic catalysts and is responsible for the plateau 
+of $V_0$.
+
+\paragraph{Michaelis-Menten equation}
+
+The curve of the relationship between $[S]$ and $V_0$ has the same general shape for most enzymes, 
+which can be expressed algebraically by the Michaelis-Menten equation \cite{MichaelisMentenEq}:
+
+$$
+V_0=\frac{V_{max}[S]}{K_m+[S]}
+$$
+
+This is the Michaelis-Menten equation, the rate equation for one-substrate enzyme-catalyzed reaction.
+It is a statement of the quantitative relationship between the inital velocity $V_0$, 
+the maximum velocity $V_{max}$, and the initial substrate concentration $[S]$, all related through a 
+constant, $K_m$, called the Michaelis constant.
+
+To experimentally determine the values of $V_{max}$ and $K_m$, researchers often start by analyzing 
+the relationship between the initial reaction velocity $V_0$ and the substrate concentration $[S]$. 
+By rearranging the Michaelis-Menten equation, we can derive a linear form known as the Lineweaver-Burk 
+equation:
+
+$$
+\frac{1}{V_0} = \frac{K_m}{V_{max}[S]} + \frac{1}{V_{max}}
+$$
+
+This transformation yields a double-reciprocal plot of $\frac{1}{V_0}$ versus $\frac{1}{[S]}$, where 
+the slope of the line equals $\frac{K_m}{V_{max}}$, the y-intercept equals $\frac{1}{V_{max}}$, and 
+the x-intercept provides $-\frac{1}{K_m}$. The Lineweaver-Burk plot facilitates the graphical 
+determination of $V_{max}$ and $K_m$ by linearizing the hyperbolic relationship of the Michaelis-Menten 
+equation.
+
+However, the Lineweaver-Burk method is not without its shortcomings. One significant issue is that 
+errors are disproportionately magnified for measurements taken at low substrate concentrations. 
+This is due to the double-reciprocal transformation, which can lead to distortions and inaccurate 
+extrapolation of $V_{max}$ and $K_m$ values. 
+
+Given these limitations, a more accurate and commonly used method involves direct analysis of 
+the $V_0$ versus $[S]$ data through nonlinear regression. This approach does not require 
+transformation of the data and therefore avoids the error magnification inherent to the Lineweaver-Burk 
+plot. Nonlinear regression allows for a more precise determination of kinetic parameters by fitting 
+the original Michaelis-Menten equation to the experimental data:
+
+$$
+V_0 = \frac{V_{max}[S]}{K_m + [S]}
+$$
+
+This method is preferred due to its direct use of the Michaelis-Menten equation and its superior 
+accuracy and reliability in estimating $V_{max}$ and $K_m$, making it an indispensable tool in 
+enzyme kinetics studies.
+
+\paragraph{Interpreting \(K_m\) and \(V_{max}\)}
+
+The Michaelis constant, $K_m$, varies for different substrates of the same enzyme and is often, 
+albeit sometimes inappropriately, used as an indicator of an enzyme's affinity for its substrate. 
+The true interpretation of $K_m$ hinges on the specifics of the enzyme's reaction mechanism, 
+particularly the number and relative rates of the steps involved in the reaction.
+
+For a reaction mechanism with two steps, $K_m$ can be represented as:
+$$
+K_m = \frac{k_2 + k_{-1}}{k_1}
+$$
+When the second step is rate-limiting ($k_2 \ll k_{-1}$), $K_m$ simplifies to the dissociation 
+constant $K_d = \frac{k_{-1}}{k_1}$, serving as a measure of the stability of the enzyme-substrate 
+($ES$) complex. Under these conditions:
+\begin{itemize}
+    \item A high $K_m$ indicates weak binding affinity between the enzyme and its substrate, 
+    as the ES complex readily dissociates back to the enzyme and substrate ($k_{-1} > k_1$).
+    \item A low $K_m$ signifies strong binding affinity, with the substrate efficiently 
+    forming a stable ES complex ($k_1 > k_{-1}$).
+\end{itemize}
+
+However, this direct relationship between $K_m$ and substrate affinity does not always hold. 
+In scenarios where $k_2 \gg k_{-1}$ or when $k_2 \approx k_{-1}$, $K_m$ becomes a more complex 
+function of the rate constants, and thus cannot be straightforwardly interpreted as a measure of 
+substrate affinity.
+
+The maximum velocity, $V_{max}$, is influenced by the rate-limiting step of the enzyme-catalyzed reaction. 
+For an enzyme following a two-step Michaelis-Menten mechanism with $k_2$ as the rate-limiting step, 
+$V_{max}$ is defined as $k_2[E_t]$.
+
+The rate-limiting step can vary across different enzymes, affecting the calculation of $V_{max}$. 
+For example, in a common scenario where the conversion of the enzyme-product (EP) complex to the 
+enzyme and product ($EP \rightarrow E + P$) is rate-limiting, $V_{max}$ is given by $k_3[E_t]$.
+
+To accommodate the variability in rate-limiting steps, the concept of $k_{cat}$, or the turnover 
+number, is introduced. This constant represents the number of substrate molecules converted to 
+product per unit of time by a single enzyme molecule at saturation. It provides a general measure 
+of the enzyme's catalytic efficiency, defined as:
+$$
+k_{cat} = \frac{V_{max}}{[E_t]}
+$$
+Thus, the Michaelis-Menten equation incorporating $k_{cat}$ becomes:
+$$
+V_0 = \frac{k_{cat}[E_t][S]}{K_m + [S]}
+$$
+where $k_{cat}$ reflects the limiting rate of the enzyme-catalyzed reaction at saturation, 
+encompassing the complexity of the reaction's steps when one is distinctly rate-limiting or several 
+steps are partially rate-limiting.
+
+\paragraph{Comparing catalytic mechanisms and efficiencies}
+The parameters $k_{cat}$ and $K_m$ are invaluable for the study and comparison of different enzymes 
+across varied reaction mechanisms. These kinetic constants mirror the enzyme's operational 
+environment within the cell, including the typical substrate concentration encountered in vivo 
+and the specific chemical nature of the catalyzed reaction. While both parameters offer insights 
+into enzyme kinetics, neither alone can fully describe an enzyme's kinetic efficiency. 
+
+For instance, two enzymes catalyzing distinct reactions might share identical $k_{cat}$ values, 
+yet the inherent rates of their respective uncatalyzed reactions could differ significantly, 
+leading to divergent rate enhancements by these enzymes. Interestingly, the $K_m$ value of an 
+enzyme often aligns with the cellular concentration of its substrate, implying that enzymes acting 
+on low-concentration substrates tend to exhibit lower $K_m$ values compared to those acting on more 
+abundant substrates.
+
+A more precise method to assess and compare the catalytic efficiencies of different enzymes involves 
+examining the $k_{cat}/K_m$ ratio, also known as the specificity constant. This ratio, indicative 
+of the rate at which enzyme and substrate are converted to product, becomes particularly informative 
+under conditions where the substrate concentration is much lower than $K_m$. Under such circumstances, 
+the initial velocity $V_0$ adheres to a second-order rate equation, dependent on both the enzyme and 
+substrate concentrations, rendering $k_{cat}/K_m$ a second-order rate constant with units of 
+$M^{-1}s^{-1}$.
+
+Notably, the efficiency of enzyme catalysis is subject to a theoretical maximum, dictated by 
+the rate at which enzyme and substrate can diffuse together in an aqueous solution, known as 
+the diffusion-controlled limit, ranging between $10^8$ and $10^9\ M^{-1}s^{-1}$. Enzymes that 
+approach or reach this kinetic ceiling are considered to have achieved catalytic perfection, 
+operating at the pinnacle of efficiency as they catalyze their reactions as rapidly as physically 
+possible under biological conditions.
 
 \subsection{Machine and Deep Learning for Drug Discovery}
+
+A drug is a foreign substance that affects biological processes and is used to diagnose, cure, mitigate, treate or prevent a disease. \cite{FDA2022Glossary} They can be natural or man-made and the latter has received a lot of attention during the past few decades as it could potential solve current world problems such as heart diseases and cancer, which are the two most common causes of death in the US. \cite{UnderlyingCauseDeath2020}
+
+The process to create a new drug has three step: drug discovery, preclinical development and clinical trials. We will here focus on the drug discovery part as it is related to the topic of this work, predicting the Michaelis constant. Therefore, in this section, we delve into the past and present of drug design. First observing traditional methods and then delving into Machine Learning and Deep Learning approaches used for this purpose.
+
 \subsubsection{Traditional approaches}
-\subsubsection{Machine Learning approaches}
-\subsubsection{Neural Networks}
-\subsubsection{Protein Language Models}
-\subsubsection{Graph Neural Networks}
+
+Initial approaches started with trial and error, where compounds were usually found by chance. This method is called serendipity drug design. \cite{Ban2006Serendipity} Another possible solution is to chemically modify known drugs or natural compounds. \cite{Cheng2013Cyclosporin} However, the most advanced method for drug discovery is rational drug design. \cite{MANDAL200990} Not only is it the smartest but also the cheapest way to discover new drugs. 
+
+Rational drug design usually starts with the identification of the biological compound involved in the design we want to cure, this is called the target. The goal is to create a ligand that can bind to this target, called a hit molecule. Rational drug design follows an iterative process to optimize the structure of our hit molecule until a compound with the adhoc properties is found. There are two main approaches in rational drug design: ligand-based and structure-based. In the former, the design focuses on the use of information from molecules known to interact with the target of interest, without necessarily having detailed knowledge of the target's structure. This approach relies on the understanding that molecules with similar structures tend to exhibit similar biological activities. In the latter, on the other hand, the design utilizes detailed knowledge of the three-dimensional structure of the biological target obtained through methods such as X-ray crystallography or nuclear magnetic resonance (NMR) spectroscopy. It aims to design molecules that fit well into the binding site of the target, thereby modulating its function. \cite{WilsonLill2011}
+
+Computational methods played a critical role in advancing the drug discovery process. Techniques such as molecular docking and virtual screening represent core components of this computational toolkit. Molecular docking predicts how small molecules, such as drugs, fit into the binding site of a target protein with known three-dimensional structure, allowing for the assessment of the binding affinity and mode of interaction \cite{STANZIONE2021273}. Virtual screening, on the other hand, employs computational algorithms to search large libraries of compounds to identify those that are most likely to bind to a drug target, effectively narrowing down the search for potential hit molecules. \cite{virtualscreening}
+
+Quantitative structure-activity relationships (QSAR) models further augment the drug design process by statistically correlating chemical structure with biological activity, facilitating the prediction of the activity of novel compounds. \cite{BELFIELD2023100251} These methods, grounded in the principles of chemistry and biology, leverage computational power to simulate and predict the outcomes of molecular interactions without the need for extensive physical experimentation.
+
+In combination, these computational techniques offer a sophisticated approach to rational drug design, enabling the identification and optimization of promising drug candidates more efficiently and cost-effectively than traditional methods alone.
+
+While traditional rational drug design methodologies have paved the way for numerous therapeutic breakthroughs, they are not without their limitations. Computational difficulties, such as the intensive computational resources required for simulating complex molecular interactions and the challenges associated with accurately predicting the pharmacokinetic and dynamic profiles of new compounds, often hinder the drug development process. Additionally, the vast chemical space, with its myriad of potential drug-like molecules, exceeds the practical exploration capacity of conventional computational techniques alone.
+
+However, with the advent of statistical models and better computational power, Machine Learning led a paradigm shift in drug design.
+
+\subsubsection{Current approaches}
+
+In the early 1970s, the first protein sequence and structure databases were created. \cite{atlasprotein} However, it was only during the 2010s that they started being heavily used for machine learning, as we did not have the computational resources nor the methods to use them. It led to the introduction of deep learning algorithms to drug design, which significantly enhanced the efficiency and accuracy of design design. \cite{Ding2022ProteinDesign}
+
+To use these models, it is necessary to use large amount of data. It is therefore necessary to choose good models to represent for molecules. This is especially the case for large macromolecules such as proteins. They are two main approaches: \cite{Defresne2021ProteinDesign}
+\begin{itemize}
+  \item Sequence-based representation: proteins are represented using their sequence of amino acids. They can be represented as a matrix or a tensor which can serve as inputs for models such as Generative Adversarial Networks (GANs) or Variational Autoencoders (VAEs), but they can also be represented using Natural Language Processing (NLP). Indeed, proteins are chains of amino acids and the sequence can be represented as a sentence and the amino acids as the words of this sentence. Models used for NLP can therefore be adapted for protein design.
+  \item Structure-based representation: proteins are represented by their 3D structure. This can be achieved by using a graph, where each amino acid represents a node and the edges represent the interactions between amino acids. Methods such as Graph Neural Networks (GNNs) can be used. The three-dimensional input can be divided into voxels, for which Convolution Neural Networks (CNNs) can be applied.
+\end{itemize}
+
+\subsubsection{Sequence-based methods}
+
+Sequence-based methods use the protein sequence as input. \cite{WU202118,ijms222111741} As each amino acid can be represented as a letter from a 20-letter alphabet, a protein sequence can be represented as a sentence and the words are the amino acids. This visualization of the protein allows the use of Natural Language Processing (NLP) methods.
+
+Basic methods include using a one-hot encoding of the protein where a protein of length $n$ is represented by a matrix of size $n\times 20$ and where each column represent one position on the sequence. At each of these position, we hence have a vector of size 20. This vector contains a 1 at the corresponding amino acid and 0 everywhere else. \cite{ElAbd2020} However, these embedding fail to measure the interactions between the amino acids and the positioning in the sequence. Therefore, more complex embedding methods were developped and models were created to build these embeddings. 
+
+Coming from NLP as well, the most famous of them all is the Transformer. \cite{NIPS2017_3f5ee243} The core idea behind the Transformer is the use of self-attention mechanisms, which allow models to weigh the importance of different parts of a sequence when processing any single element of that sequence. This approach enables the model to capture complex dependencies between elements far apart in the sequence, a capability particularly beneficial for understanding the nuanced relationships within a protein sequence.
+
+In contrast to previous models that relied on recurrent (RNN) or convolutional (CNN) layers, the Transformer eschews sequential computation in favor of parallel processing. This change significantly reduces training times and allows for the handling of longer sequences, which is crucial for tasks like protein sequence analysis where important interactions can span large regions.
+
+The architecture of a Transformer model consists of an encoder and a decoder, each comprising multiple layers of self-attention and feed-forward neural networks. Positional encoding is added to the input embeddings to incorporate information about the order of sequence elements, a critical feature for interpreting sequences where positioning plays a key role in determining function.
+
+Large Language Models (LLMs) like BERT (Bidirectional Encoder Representations from Transformers) and GPT (Generative Pretrained Transformer) have built upon the Transformer architecture to achieve remarkable performance across a wide range of language tasks. These models are pre-trained on vast corpora of text, enabling them to learn a rich understanding of language structure and semantics. They can then be fine-tuned on specific tasks, such as protein sequence analysis, to apply their learned knowledge to the domain of bioinformatics. \cite{devlin-etal-2019-bert,NEURIPS2020_1457c0d6}
+
+For protein sequence analysis, the application of Transformer-based models opens new avenues for understanding the complex relationships between amino acids. By leveraging the self-attention mechanism, these models can identify critical interactions across the entire protein sequence, potentially uncovering new insights into protein structure and function that were previously inaccessible with simpler encoding methods. The most famous models to dates are ProtTrans, MSA-Transformer, ProtGPT2, and ESM-2, which were pre-trained on large protein sequence databases and show very promising results for down the line applications:
+
+\begin{itemize}
+  \item ProtTrans was one of the earliest attempts to train LLMs on extensive protein sequences. \cite{Elnaggar2021ProtTrans} It offered 2 auto-regression models (Transformer-XL and XLNet) and 4 auto-encoder models (BERT, Albert, Electra, and T5) trained on UniRef and BFD databases, encompassing 393 billion amino acids. ProtTrans demonstrated superiority in various downstream tasks, including protein secondary structure prediction, prediction of protein sub-cellular location, and distinguishing between membrane and water-soluble proteins.
+  \item MSA-Transformer is unique because it operates on a set of sequences presented as a multiple sequence alignment (MSA) and undergoes unsupervised training on 26 million MSAs. \cite{Rao2021MSATransformer} To align with this setup, the authors proposed a new language model that employs row and column attention across the input sequences. Excitingly, the MSA-Transformer, with only 1 million parameters, surpasses ESM-1b and even the largest ESM-2 (15 billion parameters) in contact prediction, highlighting the effectiveness of extracting coevolutionary signals from MSAs for LLMs.
+  \item ProGen adapted a controllable generation style rather than masked language modeling (MLM) for training the model, similar to Chat-GPT. \cite{Madani2023} ProGen utilizes a decoder-only architecture with 1.2 billion parameters and was trained on 280 million protein sequences from over 19,000 families. It incorporates control tags to specify protein properties.
+  \item ProtGPT2 is an autoregressive transformer model designed for generating protein sequences. \cite{Ferruz2022ProtGPT2} The model was trained on 50 million protein sequences and has 738 million parameters. It is capable of generating sequences that exhibit amino acid composition and disorder propensities comparable to natural proteins. ProtGPT2 can expand existing protein superfamilies and explore unseen regions.
+  \item ESM-2 aims to investigate how scaling up protein LLMs impacts their understanding of biology. \cite{Lin2023ProteinStructure} The authors trained models up to 15 billion parameters and demonstrated that scaled LLMs can enhance the 3D structure prediction of proteins at the resolution of individual atoms. Key takeaways include: (1) ESMFold outperforms RoseTTAFold and AF2 with single-sequence inputs, and even when provided with full MSAs on CAMEO, it remains competitive with RoseTTAFold. (2) ESMFold no longer requires MSA-based templates and offers significantly faster inference speeds than AF2, enabling rapid structure computation of 1 million metagenomic sequences. (3) There is a consistent improvement in structure prediction accuracy as the size of LLMs increases.
+\end{itemize}
+
+\subsubsection{Structure-based methods}
+
+Structure-based drug design offers a complementary approach to sequence-based methods, focusing on the three-dimensional (3D) structures of proteins to predict how potential drug molecules might interact with their targets. \cite{OVCHINNIKOV2021136} This method utilizes detailed information about the spatial arrangement of atoms within a protein to identify binding sites and assess the fit and effectiveness of ligand molecules. Two notable representations in structure-based design are voxel and graph representations, each providing unique insights into protein-ligand interactions.
+
+\paragraph{Voxel Representation}
+Voxel representation transforms the 3D structure of proteins and ligands into a grid-based format, where each voxel (a 3D pixel) contains information about the presence of atoms, their types, or other physicochemical properties within that volume of space. This approach allows for the application of convolutional neural networks (CNNs), which are adept at processing image-like data, to identify patterns and features within the 3D structure that are relevant to binding affinity and specificity. \cite{Pu2019DeepDrug3D} Voxelization of protein-ligand complexes provides a detailed view of the interaction space, facilitating the identification of key interaction points and the prediction of binding affinities with high accuracy.
+
+\paragraph{Graph Representation}
+Graph representation, on the other hand, models proteins and ligands as graphs where nodes represent atoms, and edges represent chemical bonds or spatial proximity between atoms. \cite{STROKACH2020402,10095229,Jing2021GeometricVP} This method captures the topological and relational aspects of molecular structures, enabling the application of graph neural networks (GNNs) to predict interactions based on the patterns and connections within the graph. Graph-based models are particularly effective in capturing the dynamic and flexible nature of protein-ligand interactions, allowing for a more nuanced understanding of how structural changes influence binding affinity and enzyme activity.
+
+Both voxel and graph representations offer powerful tools for exploring the complex interplay between molecular structure and function. By leveraging these structural insights, researchers can more accurately predict the behavior of potential drug molecules in the context of their target proteins, guiding the rational design of new therapeutic agents with optimized efficacy and specificity.
+
+Incorporating these structure-based methods into the drug design process enhances the ability to identify promising drug candidates and optimize their properties for clinical use. As the field continues to evolve, the integration of voxel and graph representations with other computational and experimental techniques will likely play a pivotal role in accelerating drug discovery and development efforts.
 
 \subsection{Michaelis constant prediction}
 
 Predicting the Michaelis constant represents a critical intersection of computational biology 
 and enzymology, where the precise quantification of enzyme-substrate affinity becomes possible 
-through advanced computational models. This section delves into the pivotal aspects of $K_m$
-prediction, comprising the datasets used for model training and validation, 
-the methodologies currently in practice, and an overview of the state-of-the-art performances achieved 
-in this domain. 
+through advanced computational models. This can be of extreme importance in drug design because understanding enzyme kinetics, particularly through accurate Michaelis constant ($K_m$) predictions, directly influences the efficacy of drug targeting and the optimization of therapeutic agents. Precise $K_m$ values can guide the selection of drug candidates by identifying those compounds with optimal interactions with their biological targets, thus enhancing drug design and development processes.
+
+This section delves into different aspects of $K_m$ prediction, comprising the datasets used for model training and validation,  the methodologies currently in practice, and an overview of the state-of-the-art performances achieved in this domain. 
+
 \subsubsection{Dataset}
 \label{sec:dataset}
 The foundation of any computational approach to predicting the Michaelis constant is the dataset. 
@@ -189,7 +564,7 @@ The key features of the SMILES notations are:
 \end{itemize}
 
 Two databases using this notation are worth mentioning for to better understand the creation of the dataset:
-KEGG and PubChem. \cite{kegg,pubmec} The Kyoto Encyclopedia of Genes and Genomes (KEGG) is a 
+KEGG and PubChem. %\cite{kegg,pubmec} The Kyoto Encyclopedia of Genes and Genomes (KEGG) is a 
 comprehensive database integrating genomic, chemical, and systemic functional information. 
 It offers resources for the systematic analysis of gene functions in terms of the networks of 
 genes and molecules. KEGG facilitates understanding of biological processes and their underlying 
@@ -329,13 +704,13 @@ after each one. The model with the best results on the validation set was select
 was fine-tuned for different tasks including the Michaelis constant on the dataset we discussed in this 
 chapter.
 
-The model presented in the previous section have the following results:
+The models presented have the following results:
 
 \begin{table}[ht]
   \centering
   \begin{tabular}{lcc}
     \hline
-    Method & MSE \(\downarrow\) & \(R^2\) \(\uparrow\) \\
+    \textbf{Method} & \textbf{MSE \(\downarrow\)} & \textbf{\(R^2\) \(\uparrow\)} \\
     \hline
     ENKIE (2022) & -- & 0.463 \\
     Kroll et al. (2021) & 0.653 & 0.527 \\

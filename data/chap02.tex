@@ -10,15 +10,13 @@ prediction. We will examine the results in more details and see the limitations 
 chapters will aim to fix these issues and our results and analysis will be further discussed in 
 Chapter \ref{chap:6}.
 
-ProSmith offers the results in terms of MSE and correlation coefficient $r^2$.However, 
-these general metrics fail to see in detail where the model perfoms well and does not. An
+ProSmith offers the best results in terms of MSE and correlation coefficient $r^2$. However, 
+these two general metrics fail to see in detail where the model perfoms well and does not. An
 alternative to this is to use a hot/cold framework; hot meaning in the training set, and cold 
 meaning not in the training set. As the models take two inputs: the protein sequence and 
 the substrate string, we can evaluate our metrics for these 4 subgroups: hot proteins and hot substrates, 
 hot proteins and cold substrates, cold proteins and hot substrates, and cold proteins and cold substrates. 
-This will help evaluate the results,
-especially for real world applications. Indeed, the general metrics fail to help us understand the 
-capabilities of a model in the field of drug design.
+This will help evaluate the results, especially for real world applications. Indeed, the general metrics fail to help us understand the capabilities of a model in the field of drug design.
 
 Hot proteins and hot substrates means that proteins and the substrates are in the training set. It would
 be useful to adapting existing drugs to new problems. Hot proteins and cold substrates indicates that
@@ -43,18 +41,18 @@ presenting the most significant challenge in terms of generalization. The model 
 on the underlying principles it has learned, without direct knowledge of these specific inputs, 
 making accurate prediction considerably more difficult.
 
-We replicated ProSmith and analyze its results with our new hot/cold framework. We obtain:
+We replicated ProSmith and we obtain a general MSE of 0.604 and a correlation coefficient $r^2$ of 0.563. Using our hot and cold framework, we have the following results:
 
 \begin{table}[ht]
   \centering
   \begin{tabular}{lcccccc}
   \hline
-   & \multicolumn{3}{c}{\textbf{Hot}} & \multicolumn{3}{c}{\textbf{Cold}} \\
+   & \multicolumn{3}{c}{\textbf{Hot substrate}} & \multicolumn{3}{c}{\textbf{Cold substrate}} \\
    & Samples & MSE & R\(^2\) & Samples & MSE & R\(^2\) \\ \hline
-  \textbf{Hot seq}  & 1135 & 0.534 & 0.572 & 64 & 0.678 & 0.545 \\
-  \textbf{Cold seq} & 1042 & 0.635 & 0.584 & 98 & 1.143 & 0.082 \\ \hline
+  \textbf{Hot protein}  & 1192 & 0.534 & 0.572 & 64 & 0.678 & 0.545 \\
+  \textbf{Cold protein} & 985 & 0.635 & 0.584 & 98 & 1.143 & 0.082 \\ \hline
   \end{tabular}
-  \caption{StructKm results on the test set}
+  \caption{ProSmith results on the test set}
   \label{tab:prosmith_results}
 \end{table}
 
@@ -62,30 +60,16 @@ As we observe, while the general results with MSE of 0.604 and correlation coeff
 cold protein and cold substrate are very dissapointing and showcase a fault in ProSmith to predict the
 interactions between completely unseen proteins and substrates in the training set.
 
-More specifically, we see that when both the protein and substrate are hot, we have better results than
-the general results, which make sense as we explained above as the model can leverage its learned patterns
-and interactions most efficiently. What is more surprising however is that we obtain the highest results
-for the hot substrates and cold proteins, which would mean that the substrate information is more
-important than the protein. However, the model should predict the Michaelis constant, which is an
-indication of the interaction between the substrate and the protein. Hence, we should have lower results
-for completely unknown proteins. 
+More specifically, we see that when both the protein and substrate are in the training set (hot proteins and hot substrates), we have better results than the general results, which make sense as we explained above as the model can leverage its learned patterns and interactions most efficiently. What is more surprising however is that we obtain the highest results for the hot substrates and cold proteins, which would mean that the substrate information is more important than the protein. This raises questions as enzymes are extremely specific and it should be more difficult to predict this value than its counterpart hot protein and cold substrate, as the enzyme always works in a similar way and affinity with the substrate may be determined by substrate similarity.
 
-We also obtain decent results for hot proteins and cold substrates, meaning that even though we don't
-have the information about the substrate in the training set, the model is capable of using its 
-knowledge of proteins and substrate efficiently. However, for cold proteins and cold substrates, the model
-performs extremely poorly, meaning that it is not capable of generalizing for completely unseen pairs.
-This becomes very problematic as this would be one of the most important point of the model. Furthermore,
-it makes us question the model ability to predict the interactions between the protein and the substrate
-as we get very decent results when some data is in the training set but poor performance when it is not.
+We also obtain decent results for hot proteins and cold substrates, meaning that even though we don't have the information about the substrate in the training set, the model is capable of using its knowledge of proteins and substrate efficiently. However, for cold proteins and cold substrates, the model performs extremely poorly, meaning that it is not capable of generalizing for completely unseen pairs. This becomes very problematic as this would be one of the most important point of the model. Furthermore, it makes us question the model ability to predict the interactions between the protein and the substrate as we get very decent results when some data is in the training set but poor performance when it is not.
 
-This first analysis shed lights on the capabilities of ProSmith for true generalization and question its
-overall abilities to predict the interaction between the protein and the substrate and to simply overfit
-on the data at hand.
+This first analysis shed lights on the difficulties of ProSmith to generalize for completely unseen samples and question its overall abilities to predict the interaction between the protein and the substrate and to simply overfit the data.
 
 Hence, in the future, we will not only look at the general metrics of our models but also at these 4
 additional metrics that are much more informative.
 
-We also obtain the following results for the new test set:
+We also obtain an MSE of 0.939 and a correlation coefffient $r^2$ of 0.467, as well as the following results for the new test set:
 
 \begin{table}[ht]
   \centering
@@ -93,33 +77,27 @@ We also obtain the following results for the new test set:
   \hline
    & \multicolumn{3}{c}{\textbf{Hot}} & \multicolumn{3}{c}{\textbf{Cold}} \\
    & Samples & MSE & R\(^2\) & Samples & MSE & R\(^2\) \\ \hline
-  \textbf{Hot seq}  & 40 & 1.439 & 0.067 & 30 & 0.827 & -0.190 \\
-  \textbf{Cold seq} & 1117 & 1.175 & 0.306 & 102 & 2.202 & -0.078 \\ \hline
+  \textbf{Hot seq}  & 40 & 0.839 & 0.438 & 30 & 0.731 & -0.140 \\
+  \textbf{Cold seq} & 1117 & 0.865 & 0.489 & 102 & 1.833 & 0.108 \\ \hline
   \end{tabular}
-  \caption{StructKm results on the new test set}
+  \caption{ProSmith results on the new test set}
   \label{tab:summary_performance}
 \end{table}
 
-Once, again, we notice that \textcolor{add results + analysis of results}
+For the hot proteins and substrates we obtain a correlation coefficient $r^2$ of 0.438, which is inferior to the general value of 0.467. While there are not many samples in this group, only 40, we would expect to have the higher results as the inputs are all in the training set, even though it is for different protein-substrate pairs. 
 
-We also wanted to 
-explore its ability to model the interactions between the protein and the substrate, as the Michaelis constant
-is a reflection of it. As we noticed, its performance on completely unseen proteins (cold proteins) and
-completely unseen substrates (cold substrates) is very low and we wanted to know if the general results were
-due to a real understanding of the protein and substrate interaction or simply an overfit on the data, which
-is very common with small datasets in biology-related fields.
+For the cold proteins and hot substrates, we here have the highest results with a correlation coefficient of 0.489, which is higher than the general value. This is very surprising as this mean that even though we don't have any information about the substrate in the training, the substrate information is enough to predict the Michaelis constant. Considering the very specificity of enzymes, it appears surprising to have higher results when the protein is unknown compared to when it is known, and this deserve further invastigation.
 
-To do so, we conducted 2 main experiements. The first one, the single amino acid mutation effect analysis,
-aims at determining the ability of the model to deal with different but very similar proteins. 
-The second experiment's goal is to see where the Michaelis constant distribution lies between different 
-substrates.
+For the hot proteins and cold substrates however, while the MSE is the lowest of all groups, 0.731, the correlation coefficient is negative indicating that the model's predictions inversely correlate with the actual values. This unusual result suggests that while the model can sometimes predict lower errors in terms of MSE, it systematically mispredicts the direction of change in the Michaelis constant when faced with novel substrates paired with known proteins. Essentially, the model might predict higher or lower constants in scenarios where the opposite is true, reflecting a misunderstanding of the underlying biochemical principles or a misalignment between the model's learned patterns and real-world enzymatic behavior. This comment must however been taken with a grain of salt as only 30 samples are available for comparison. Further investigation will be needed to conclude on these results. 
+
+Finally, the cold proteins and substrates shows the worst MSE, 1.833, more than 200\% the values of the other groups, underscoring the inability of the model to generalize and offer decent predictions for completely unseen proteins and substrates. This significant increase in MSE highlights the challenges inherent in extending predictive capabilities to entirely novel enzymatic interactions. The model's performance in this context suggests a critical gap in its learning architecture or training data, which fails to encapsulate the full diversity and complexity of potential enzyme-substrate pairings.
+
+Overall, except for the results of the hot proteins and cold substrates, which have very few samples, we observe similar results for the regular test set and the new test set. Furthermore, we have quite a significant drop between the test set and the new test set, from 0.563 to 0.467, which once again raises the question of the model ability to generalize properly. In the light of these results, it became evident that further investigation was necessary to determine if the model is actually capable of capturing the interactions between the protein and the substrate through the Michaelis constant. To do so, we conducted two experiements. The first one, the single amino acid mutation effect analysis, aims at determining the ability of the model to deal with different but very similar proteins. The second experiment's goal is to see where the Michaelis constant distribution lies between different substrates.
 
 \subsection{Single Amino Acid Mutation Effect Analysis}
 
 Our first experiment is the single amino acid mutation effect. This experiment aims to see how the model
-performs when we slightly modify the protein sequence. For each position of the sequence, we generate another
-sequence with one of the remaining 19 amino acids. For example, with a protein sequence of length 500, we
-will get $500\times19=9,500$ new sequences.
+performs when we slightly modify the protein sequence. We focus on a systematic approach where each amino acid in a given protein sequence is individually substituted with one of the other 19 standard amino acids. For instance, consider a protein sequence composed of 500 amino acids. By mutating each position to any of the 19 possible alternatives (excluding the original amino acid at that position), we generate a total of  $500\times19=9,500$ new sequences.
 
 Considering the large number of sequences this would create, we selected 16 sequences of the test set with
 8 having a very low MSE, 8 having a very high MSE, and for each of them, 2 hot proteins and hot substrates, 
@@ -128,7 +106,7 @@ cold substrates. This allows us to have enough different sequences to make a dec
 able to compare how it affects the results. 
 
 Once we selected our 16 sequences and created all their mutants, we associated them with the substrate they
-were originally with in the test set, hence forming sequence-substrate pairs that can be used by the ProSmith
+originally were with in the test set, hence forming sequence-substrate pairs that can be used by the ProSmith
 model and can efficiently be compared to the original sequence-substrate pair.
 
 Below we showcase these results for 2 specific proteins: 
@@ -141,10 +119,7 @@ Below we showcase these results for 2 specific proteins:
     indicating that the Michaelis constant was not well predicted.
 \end{itemize}
 
-Figures \ref{fig:seq1860} and \ref{fig:seq1866} are graphs of the results of the impact of the mutations for
-each amino acid. More specifically, once we obtained the Michaelis constant predicted by ProSmith for each 
-pair of mutant-substrate, we calculated the difference between the obtained value and the predicted value for the
-original protein-substrate pair, and plotted the maximum variation for each amino acid
+Figures \ref{fig:seq1860} and \ref{fig:seq1866} are graphs of the results of the impact of the mutations for each amino acid. More specifically, once we obtained the Michaelis constant predicted by ProSmith for each pair of mutant-substrate, we calculated the difference between the obtained value and the predicted value for the original protein-substrate pair, and plotted the maximum variation for each amino acid.
 
 \begin{figure}
     \centering
@@ -160,58 +135,30 @@ original protein-substrate pair, and plotted the maximum variation for each amin
     \label{fig:seq1866}
   \end{figure}
 
-We can observe 2 main elements. First, for all amino acid mutation, the variation is about the same, generally
-ranging up to 0.10 (which is a maximum variation of 20\%). The second is that the variation can be positive
-or negative and there is no evident pattern. These observations are essential as they provide valuable 
-insights on how the model works. 
+Two main observations emerge from our experiment. First, the variation across all amino acid mutations is relatively consistent, with changes generally capped at a maximum of 0.10, which corresponds to a variation of up to 20\%. The second observation is that these variations can be both positive and negative, without a clear pattern emerging. These points are crucial as they offer insights into the model's operational dynamics.
 
-Going back to how enzymes and substrates, we know that a very small number of amino acids in the enzyme
-are responsible for the reaction. This mean that one or a few amino acids are the reason why the reaction occur
-and hence if the enzyme no longer has these amino acids, the reaction cannot happens and therefore, the Michaelis
-constant should have an extremely high value (meaning a very low affinity). However, in our experiment, we show
-that no matter what the mutation is, the value remain very close to its original prediction, meaning that the
-model is not capable of capturing the interaction between the protein and the substrate.
-
-Furthermore, as enzymes are extremely specific, we would expect that only a very small amount of sequences
-show better results than the wildtype sequence: we would expect most mutant-substrate pair to have a larger
-Michaelis constant (indicating a lower affinity) and only very few having a smaller Michaelis constant 
-(indicating a higher affinity) that would be extremely interesting for enzyme engineering. However, as we can
-see on the figures, we have positive and negative values in both directions, which does not reflect the 
-reality and futher indicates the model inability to model the interaction between the enzyme and its substrate.
-
-To continue our analysis of what the model does, we looked into the substrate distribution.
+Considering the role of specific amino acids in enzyme activity, it's known that only a limited number of amino acids within an enzyme are essential for facilitating a reaction, as explain in Section \ref{section:enzyme}. This implies that the presence or absence of these critical amino acids significantly influences the Michaelis constant, reflecting the enzyme's affinity for a substrate. Ideally, if an enzyme lacks these critical amino acids, the reaction would be severely impaired, leading to a substantially higher Michaelis constant. However, our data indicate that mutations result in values that remain close to the original predictions, suggesting that the model fails to capture the intricate interactions between the protein and the substrate accurately.
+  
+Enzymes are highly specific, and thus, it would be reasonable to expect that most mutated sequences would result in a higher Michaelis constant (indicating reduced affinity), with only a few exceptions potentially showing a lower constant (suggesting increased affinity). Such cases would be of great interest for enzyme engineering. Yet, the distribution of our results, featuring both positive and negative variations, does not align with this expectation, further highlighting the model's limitations in accurately modeling enzyme-substrate interactions.
+  
+To further investigate the model's performance, we next examine the distribution of substrates.
 
 \subsection{Substrate Distribution Analysis}
 
-Now that we looked into how the proteins impact the model prediction, which they mostly do not as the model
-is not capable of predicting the interaction between the mutant and the substrate, we look into the second input:
-the substrate.
+Moving forward from the investigation into protein impacts, which revealed minimal influence on model predictions due to the model's inability to accurately predict the interaction between mutant proteins and substrates, our focus shifts towards the second input: the substrate. This section delves into what we term the substrate distribution, essentially examining the distribution of the Michaelis constant in relation to the substrate's impact.
 
-In this section, we look into what we call the substrate distribution which is the Michaelis constant distribution
-when focusing on the impact of the substrate. 
-
-First of all, we wanted to know how different was the distribution of the substrates with high prediction error
-compared to the general substrate distribution. In other words, we looked into how is distributed the Michaelis
-constant for the substrates where the predicted Michaelis constant is far from its real value and compare it
-to the global distribution of the data.
+Our initial step was to discern how the substrate distribution associated with high prediction errors contrasts with the overall distribution of substrates. Put simply, we aimed to understand how the Michaelis constant is distributed for substrates where the predicted values significantly deviate from their actual values, and to compare this with the broader dataset distribution.
 
 \begin{figure}
     \centering
-    \includegraphics[width=1\linewidth]{5-substrate-dist.png}
-    \caption{Distribution of the substrates with high prediction error}
+    \includegraphics[width=\linewidth]{5-substrate-dist.png}
+    \caption{Distribution of substrates with high prediction error}
     \label{fig:substratedist}
-  \end{figure}
+\end{figure}
 
-In Figure \ref{fig:substratedist}, we have in blue the substrate distribution of the 10 substrates with the
-highest MSE and in red the global substrate distribution. We observe that even though these 10 substrates
-have a high error, their distribution is not out of the global distribution. This means that the high error
-in predicting the Michaelis constant is not due to very different substrate distribution as the high errors
-do not corrolate with distribution that are outside of the global substrate distribution.
+In Figure \ref{fig:substratedist}, the distribution of the 10 substrates exhibiting the highest mean squared error (MSE) is depicted in blue, while the overall substrate distribution is shown in red. Despite the high error rates associated with these 10 substrates, their distribution aligns with the global substrate distribution. This observation suggests that the inaccuracies in predicting the Michaelis constant are not attributable to an atypical distribution of substrates, as the high errors do not correlate with distributions that deviate significantly from the global substrate distribution.
 
-Diving deeper into the results analysis of the ProSmith model, we observe that the largest errors that are
-due, either by protein-substrate pairs that are not in the training set (cold protein, cold substrate) as
-indicated by the high MSE for this subset, or by substrate and proteins that are indeed in the training set
-but where the Michaelis constant is far from the distribution of this specific substrate.
+Further analysis of the ProSmith model's results reveals that the most substantial errors arise either from protein-substrate pairs not included in the training set (cold proteins and substrates) — as reflected by the heightened MSE for this subgroup — or from substrates and proteins that, despite being part of the training set, have Michaelis constants markedly divergent from the distribution specific to these substrates. This insight underscores the challenges the model faces in generalizing predictions across varying conditions, highlighting areas for potential improvement in its predictive accuracy and robustness.
 
 \begin{figure}
     \centering
@@ -227,34 +174,14 @@ but where the Michaelis constant is far from the distribution of this specific s
     \label{fig:sub2}
   \end{figure}
 
-Figures \ref{sub1} and \ref{sub2} examplify this discovery. As it is shown in red, we observe that for the same
-substrate, when the real Michaelis constant is outside of the general distribution of the substrate, the model
-is incapable of predicting this value properly and predicts instead a value inside the distribution of this
-substrate, showing the incapability of the model to predict properly the interaction between the enzyme and
-its substrate. However, this is a consequent problem as each substrate interact very differently between
-different enzymes and this element is essential to take into account, which is something ProSmith is
-incapable of doing.
+Figures \ref{sub1} and \ref{sub2} examplify this discovery. As it is shown in red, we observe that for the same substrate, when the real Michaelis constant is outside of the general distribution of the substrate, the model is incapable of predicting this value properly and predicts instead a value inside the distribution of this substrate, showing the incapability of the model to predict properly the interaction between the enzyme and its substrate. However, this is a consequent problem as each substrate interact very differently between different enzymes and this element is essential to take into account, which is something ProSmith is incapable of doing.
 
 \subsection{Analaysis Conclusions}
 
-As we have observed, when looking in details into the single amino acid mutation analysis, we see that 
-the prediction of the Michaelis constant changes within the same small range and does not take into account
-the basics of biology that indicates that an enzyme which is very specific cannot offer similar performance
-if we mutate all its amino acids. This indicates ProSmith's inability to model the interaction between
-the enzyme and the substrate.
+The detailed examination of single amino acid mutation effects reveals that the predicted Michaelis constant fluctuates within a narrow margin, disregarding the fundamental biological principle that an enzyme's specificity is compromised by mutations across its amino acid sequence. This observation signals ProSmith's inadequacy in capturing the essence of enzyme-substrate interactions.
 
-Furthermore, the substrate distribution analysis showcases that the highest errors are not due to substrate that
-have a distribution outside of the general substrate distribution but substrate that have a normal distribution
-but possess some enzymes for which the Michaelis constant is very different. This means that the model is
-not capable of capturing the interactions between each protein and a substrate and bases its prediction on the
-substrate distribution.
+Moreover, the analysis of substrate distribution further elucidates that the most pronounced prediction errors do not stem from substrates with atypical distributions. Instead, they arise from substrates with typical distributions that include some enzymes with markedly distinct Michaelis constants. This finding suggests that ProSmith's predictions are overly reliant on general substrate distribution patterns and lack the sophistication needed to model individual protein-substrate interactions accurately.
 
-Hence, while ProSmith showcases the best performances in terms of MSE and correlation coefficient, the model
-is far from being able to accurately predict the interaction between enzymes and their substrates, which indicates
-clear possible improvement using different methods that will discuss in later sections. 
+Despite ProSmith exhibiting superior performance metrics, such as MSE and correlation coefficient, the model demonstrates a clear deficiency in its ability to predict enzyme-substrate interactions precisely, indicating ample room for improvement. This limitation is particularly evident in its poor correlation coefficient of 0.082 for cold proteins and substrates, highlighting a significant challenge in generalization.
 
-Moreover, these problems can be examplify by the model 0.110 correlation coefficient for cold protein and cold 
-substrate, indicating that the model is not capable of generalizing properly. While our model also suffer from
-this problem and offer less than optimal results with a corrolation coeffient of 0.124 for the cold proteins and
-cold substrates, we outperfom ProSmith in this regard and with similar global results, we
-offer a model that is capable of better generalization while maintaining decent results for the general case.
+In subsequent chapters, our objective is to explore alternative methods to address these issues. Our aim is to enhance the model's capacity for accurate prediction and generalization across diverse enzyme-substrate interactions, thereby overcoming the limitations observed in ProSmith's current implementation.

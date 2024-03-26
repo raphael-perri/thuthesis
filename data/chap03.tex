@@ -4,19 +4,11 @@
 
 \section{Introduction}
 
-As of today, only sequence-based model exists for the prediction of the Michaelis constant. Some (Km pred1) use
-simple embeddings to represent the protein sequences. Other such as (ENKIE) use Bayesian Multilevel Models (BMMs)
-to capture a simple hierarchy of enzyme properties. Finally, the state-of-the-art model ProSmith pre-trains a
-large enzyme-specific protein models and uses embeddings from existing large protein models. 
+Current models for predicting the Michaelis constant primarily utilize sequence-based approaches, each employing distinct strategies to model enzyme-substrate interactions. Some models, such as \citeauthor{km1}, rely on simple embeddings to represent protein sequences, highlighting the potential of basic representational techniques. Conversely, models like ENKIE utilize Bayesian Multilevel Models (BMMs) to incorporate enzyme properties hierarchically, though they do not directly utilize the protein sequences. \cite{enkie} Among these, ProSmith stands out by pre-training large, enzyme-specific protein models and utilizing embeddings from comprehensive protein models, showcasing advanced capabilities in capturing complex interactions. \cite{prosmith}
 
-In this chapter, we present SeqKm a deep learning model that makes use of existing large protein models without
-pretraining. This not only allows for fast training and prediction as there is no need for pretraining but also
-offer better performances by leveraging the protein knowledge retained by large protein models.
+In this context, we introduce SeqKm, a deep learning model that leverages the extensive knowledge encoded in pre-existing large protein models without the necessity for additional pre-training. This approach not only facilitates quicker training and prediction times but also aims to enhance model performance by utilizing the inherent protein knowledge present in these large models.
 
-To demonstrate our method applicability to Michaelis constant prediction, we analyze the sequence-based
-model performance compared to the state-of-the-art models in this field. Even though this model
-does not outperform ProSmith, it shows equal performances on the new curated test set, indicating our
-model's better ability to generalize and showing promissing results for the ensemble method.
+Our analysis focuses on comparing SeqKm to the current state-of-the-art models in this field. Although SeqKm does not surpass ProSmith in overall performance, it achieves comparable results on a newly curated test set. This equivalence in performance suggests SeqKm's superior generalization capability and presents promising results for ensemble methods in the accurate prediction of Michaelis constants.
 
 \section{Methods}
 
@@ -108,8 +100,7 @@ Finally, after looking at the best metrics for the validation test, we reverted 
 
  \section{Results}
 
- Using the model and the training strategy presented above, we obtain a MSE of 0.700 and a $r^2$ of 0.493 
- as well as the following hot/cold results for the test set:
+ Using the model and the training strategy presented above, we obtain a MSE of 0.700 and a $r^2$ of 0.493, making our model better than only one of the four models in our benchmark. We also obtain the following hot/cold results for the test set:
 
  \begin{table}[ht]
   \centering
@@ -121,12 +112,20 @@ Finally, after looking at the best metrics for the validation test, we reverted 
   \textbf{Cold protein} & 985 & 0.708 & 0.536 & 98 & 1.250 & -0.004 \\ \hline
   \end{tabular}
   \caption{SeqKm results on the test set}
-  \label{tab:summary_performance}
+  \label{tab:seqkm_results}
  \end{table}
 
+ The general performance of SeqKm, when analyzed under the hot/cold framework, reveals a nuanced picture of its predictive capabilities, especially in comparison to ProSmith.
 
+ Firstly, the overall pattern shows that SeqKm, like ProSmith, performs better with hot substrates compared to cold substrates, indicating a potential reliance on known substrate information for making accurate predictions. Specifically, the results for hot proteins and hot substrates yield an MSE of 0.642 and an correlation coefficient $r^2$ of 0.485, slightly worse than what was observed for ProSmith, where an MSE of 0.534 and an correlation coefficient $r^2$ of 0.572 were recorded under similar conditions. This suggests that SeqKm may not utilize protein information as effectively as ProSmith, or it might be more sensitive to variations in substrate quality.
+ 
+ Moreover, the performance dip for SeqKm becomes more pronounced with cold proteins, regardless of whether the substrate is hot or cold. This is particularly evident in the drastic drop to an correlation coefficient $r^2$ of -0.004 for cold proteins and cold substrates, even lower than ProSmith's already disappointing performance in this category. Such results underscore a significant challenge for SeqKm in generalizing to completely unseen protein-substrate pairs.
+ 
+ However, a surprising aspect of SeqKm's performance is observed in its handling of hot substrates paired with cold proteins, where it achieves an correlation coefficient $r^2$ of 0.536. This is almost as good as ProSmith's performance under similar conditions.
+ 
+ The analysis of SeqKm, alongside with ProSmith's outcomes, raises important considerations about the current state of Michaelis constant prediction models. While SeqKm exhibits a comparative ease of training and potentially faster prediction times due to the lack of a pre-training requirement, its ability to generalize across completely novel enzyme-substrate interactions remains limited. This limitation is crucial, especially in the context of drug discovery and enzyme engineering, where the ability to accurately predict the behavior of uncharacterized proteins is invaluable.
 
-For the new test set, we obtain:
+For the new test set, we obtain a global MSE of 0.973 and correlation coefficient $r^2$ of 0.447:
 
 \begin{table}[ht]
   \centering
@@ -141,5 +140,12 @@ For the new test set, we obtain:
   \label{tab:updated_summary_performance}
 \end{table}
 
-Our method offer better performances only for 1 out of the 4 models of our benchmark, which indicates 
-possible improvements.
+For the general metrics, we obtain results that are closer to ProSmith for the new test set, even though still below. We notice that whereas ProSmith had a correlation coefficent $r^2$ go from 0.563 to 0.467 (20\% drop) between the test set and the new test set. While are results are inferior, from 0.493 to 0.447 (10\%), the drop in percentage is twice as small, indicating that our model is more robust to new samples.
+
+Furthermore, we notice that similarly to ProSmith, the results are better for cold proteins and hot substrates than for hot proteins and substrates, which indicates that our sequence-based model seems to deal with the same problems than ProSmith, in additional to smaller results in general.
+
+We also have the same pattern for the hot proteins and cold substrates. While the MSE is relatively small compared to the other groups, the correlation coefficient $r^2$ is negative and even larger than ProSmith's. This indicates that our model cannot properly predict the Michaelis constant when the protein is known but the substrate is unknown, and even produce values that are inversely proportional, which would be a huge problem for wet-lab experiments.
+
+Finally, we also obtain poor performance for the cold proteins and cold substrates group, indicating once again that our model, similarly to ProSmith, is incapable of generalizing properly to completely unseen samples.
+
+Following the analysis of sequence-based models for Michaelis constant prediction on both the test and new test datasets, we conclude that a sequence-based approach is alone not enough to predict properly the Michaelis constant. Hence, our attention now shifts towards exploring structure-based methods. Given the limitations observed in the current models' ability to generalize across novel enzyme-substrate interactions, investigating structure-based approaches presents a promising avenue for enhancing predictive accuracy. By leveraging the detailed spatial information inherent in protein and substrate structures, we aim to ascertain whether these methods can surpass the performance of sequence-based models, potentially offering a more robust solution for predicting enzyme kinetics.

@@ -5,102 +5,65 @@
 
 \section{Introduction}
 
-In this chapter, we will not only examinate our methods and results but will also provide a deep dive into
-ProSmith, the current state-of-the-art model for Michaelis constant prediction. We will also take a deeper look
-into the dataset used for this task and finally offer some perspective on the evaluation metrics and the use
-of Michaelis constant predictive models.
+This chapter will explore various aspects related to predicting the Michaelis constant. First, we will conclude the analysis on our results. Then, we'll delve into the dataset employed in our study, along with a review of the benchmark models. Subsequently, we'll examine the metrics used to evaluate our model's performances. We will then weigh the advantages and disadvantages of methods based on sequence and structure. Finally, the chapter will conclude with a discussion on enzyme modeling strategies and their implications.
 
-\section{ProSmith Analysis}
+\section{Results conclusion}
+Throughout our investigation, we applied four distinct methodologies to predict the Michaelis constant: SeqKm, which is sequence-based; StructKm, focusing on global structural features; Pocket-StructKm, centered on local structural details; and SeqStructKm, an ensemble technique that merges sequence and structural data. While the individual sequence and structure-oriented methods demonstrated limited superiority over our benchmark models, our ensemble strategy, SeqStructKm, exhibited remarkable performance enhancements. Notably, it surpassed three of the four benchmark models, but also the top-performing ProSmith model in scenarios involving novel proteins and substrates. This outcome suggests enhanced generalization capabilities, a critical attribute for predictive models in this domain.
 
-While ProSmith offers the results in terms of MSE and correlation coefficient $r^2$, we also wanted to 
-explore its ability to model the interactions between the protein and the substrate, as the Michaelis constant
-is a reflection of it. As we noticed, its performance on completely unseen proteins (cold proteins) and
-completely unseen substrates (cold substrates) is very low and we wanted to know if the general results were
-due to a real understanding of the protein and substrate interaction or simply an overfit on the data, which
-is very common with small datasets in biology-related fields.
+However, an unexpected trend emerged across all methods: they achieved better performance with novel proteins and known substrates than with known proteins and substrates. This observation challenges biological expectations, given the high specificity of enzyme-substrate interactions, which implies that information about the enzyme (protein) should significantly influence the predictive outcome. One potential explanation for this paradox is the reliance on pretrained embeddings for proteins, which might encapsulate sufficient protein-related information, thereby diminishing the impact of direct protein data in the prediction process. Yet, this hypothesis fails to account for the subpar performance observed in scenarios involving novel proteins and substrates, where a lack of direct protein information presumably hampers model accuracy.
 
-To do so, we conducted 2 main experiements. The first one, the single amino acid mutation effect analysis,
-aims at determining the ability of the model to deal with different but very similar proteins. 
-The second experiment's goal is to see where the Michaelis constant distribution lies between different 
-substrates.
+Moreover, the strategy employed by ProSmith, which also utilizes pretrained embeddings for substrate information, does not exhibit the same pattern of performance degradation with unknown substrates. This discrepancy raises questions about the underlying mechanisms of model generalization and the extent to which these models truly understand enzyme-substrate interactions.
+
+The observed anomalies across all tested Michaelis constant prediction models hint at a common underlying challenge: a systemic inability to generalize across diverse enzymatic contexts. Pinpointing the exact causes of these limitations is complex, but several factors, including the inherent limitations of pretrained embeddings and the models' architectural constraints, may contribute to this issue. Future sections will delve deeper into potential explanations and explore avenues for overcoming these obstacles, aiming to refine our understanding and improve the predictive accuracy of Michaelis constant models.
 
 \section{Dataset}
 
-All the four models that were presented here use the same dataset curated by \textcolor{red}{xxx}. As we 
-built a new test dataset using data from 2022 to 2024, we had the opportunity to look into details into how
-the dataset was built and have noted some possible improvements.
+All the four models that were presented here use the same dataset curated by \citeauthor{km1}. As we 
+built a new test dataset using data from 2022 to 2024, we had the opportunity to look into details into how the dataset was built and have noted some possible improvements.
 
-As a reminder, the dataset is coming from the BRENDA database, which is a comprehensive compilation of information 
-on enzymes and their biochemical properties, including the Michaelis constant.
+As a reminder, the dataset is coming from the BRENDA database, which is a comprehensive compilation of information on enzymes and their biochemical properties, including the Michaelis constant.
 
 One problem of this data preprocessing is the way the protein sequences are obtained. For 6,882 out of the
-11,675 total entries (59\%), the UniProtID is available and hence it is very simple to retrieve the protein
-sequence. However, for the 40\% remaining, the UniProtID is not accessible. The authors of \textcolor{red}{paper}
-hence decided to use the EC Number and organism in order to retrieve a sequence.
+11,675 total entries (59\%), the UniProtID is available and hence it is very simple to retrieve the protein sequence. However, for the 40\% remaining, the UniProtID is not accessible. The authors of \citeauthor{km1} hence decided to use the EC Number and organism in order to retrieve a sequence.
 
 EC Numbers provide a systematic way to classify enzymes based on the chemical reactions they catalyze. 
 By using EC numbers in combination with organism names, we can identify enzymes of interest even when 
-specific identifiers like UniProt IDs are not available. Using the organism on top of this can help to narrow
-down the possible sequences. However, the same EC number can correspond to multiple isozymes with varying 
-sequences within or across species. Therefore, using the EC number and organism name might retrieve multiple 
-sequences, complicating the identification of the specific enzyme of interest and making its link with the
-Michaelis constant, which can drastically vary across different enzymes of the same EC Number and organism, can
-lead to misleading results.
+specific identifiers like UniProt IDs are not available. Using the organism on top of this can help to narrow down the possible sequences. However, the same EC number can correspond to multiple isozymes with varying sequences within or across species. Therefore, using the EC number and organism name might retrieve multiple sequences, complicating the identification of the specific enzyme of interest and making its link with the Michaelis constant, which can drastically vary across different enzymes of the same EC Number and organism, can lead to misleading results.
 
-Hence, this method offer sequences for 40\% of the dataset which we have no information about how close they
-are to reality and can dramatically impact the results. It is therefore difficult to classify the results of
-all these models for real applications as it may not reflect experimental results, and hence, not be as 
-useful as it could be.
+Hence, this method offer sequences for 40\% of the dataset which we have no information about how close they are to reality and can dramatically impact the results. It is therefore difficult to classify the results of all these models for real applications as it may not reflect experimental results, and hence, not be as useful as it could be.
 
 To deal with this problem, we also curated a completely new dataset for the Michaelis constant from the
-SABIO-RK database, which, similarly to BRENDA, is a repository that contains information about biochemical 
-reactions and their kinetic properties. "Sabio-RK" stands for "System for the Analysis of Biochemical 
-Pathways - Reaction Kinetics." It is designed to store, organize, and provide access to experimental 
-kinetic data extracted from literature. The database is particularly useful for researchers in the fields 
-of biochemistry, enzymology, and systems biology, as it offers a wealth of data that can be used for 
-modeling and simulation of metabolic pathways, enzyme kinetics, and for the design of biological experiments.
-While BRENDA is more general, the SABIO-RK database focuses on the kinetics of biochemical reaction, like 
-the Michaelis constant and therefore provide more specific and reliable data for our work.
+SABIO-RK database, which, similarly to BRENDA, is a repository that contains information about biochemical reactions and their kinetic properties. "Sabio-RK" stands for "System for the Analysis of Biochemical Pathways - Reaction Kinetics." It is designed to store, organize, and provide access to experimental kinetic data extracted from literature. The database is particularly useful for researchers in the fields of biochemistry, enzymology, and systems biology, as it offers a wealth of data that can be used for modeling and simulation of metabolic pathways, enzyme kinetics, and for the design of biological experiments. While BRENDA is more general, the SABIO-RK database focuses on the kinetics of biochemical reaction, like the Michaelis constant and therefore provide more specific and reliable data for our work.
 
-In the end, we curated a dataset of over 27,000 protein-substrate pairs, containing not only wildtype like the
-previously existing dataset but also mutants that can be of great significance for analyzing kinetic models
-ability to capture protein and substrate interactions. This dataset can be used for training our model but we
-decided to focus on different specificities that we will discuss in the next section.
+In the end, we curated a dataset of over 27,000 protein-substrate pairs, containing not only wildtype like the previously existing dataset but also mutants that can be of great significance for analyzing kinetic models ability to capture protein and substrate interactions. This dataset can be used for training our model but we decided to focus on different specificities that we will discuss in the next section.
 
 \section{Model Evaluation and Perspectives}
 
 In the Michaelis constant prediction literature, the most common metrics are the MSE and the correlation
 coefficient, as shown by the four state-of-the-art models presented in the work. 
 
-While these metrics are a very good indication of the model overall performance and ability to predict a 
-specific value based on the protein-substrate pairs, it may not be the most adequate to model the interaction
-between the enzyme and its substrate. Indeed, as we saw with ProSmith, while it performs best on the evaluation
-metrics, it does not seem to capture the interaction between the enzyme and its substrate and fail to provide
-Michaelis constant values that are realistic.
+While these metrics are a very good indication of the model overall performance and ability to predict a specific value based on the protein-substrate pairs, it may not be the most adequate to model the interaction between the enzyme and its substrate. Indeed, as we saw with ProSmith, while it performs best on the evaluation metrics, it does not seem to capture the interaction between the enzyme and its substrate and fail to provide Michaelis constant values that are realistic.
 
-Furthermore, while the Michaelis constant can be very interesting to understand a specific protein-substrate
-pair, predicting it for many unknown pairs might lack real-world significance. However, it can become
-extremely valuable if we decide to use as a scoring function. Indeed, as the Michaelis constant measures the
-affinity of an enzyme with its substrate, we can use it to score mutants for specific wildtype and accelerate
-the drug discovery process. 
+Furthermore, while the Michaelis constant can be very interesting to understand a specific protein-substrate pair, predicting it for many unknown pairs might lack real-world significance. However, it can become extremely valuable if we decide to use as a scoring function. Indeed, as the Michaelis constant measures the affinity of an enzyme with its substrate, we can use it to score mutants for specific wildtype and accelerate the drug discovery process. 
 
-To produce more efficient enzymes in enzyme engineering and screening, understanding and manipulating 
-enzyme-substrate interactions is crucial. By predicting Km values for a vast 
-array of mutant enzymes against their respective substrates, we can rank these mutants 
-according to their efficiency and selectivity. This approach enables the prioritization of 
-candidates that demonstrate improved performance over wild types, streamlining the enzyme engineering process.
+To produce more efficient enzymes in enzyme engineering and screening, understanding and manipulating enzyme-substrate interactions is crucial. By predicting Km values for a vast array of mutant enzymes against their respective substrates, we can rank these mutants according to their efficiency and selectivity. This approach enables the prioritization of candidates that demonstrate improved performance over wild types, streamlining the enzyme engineering process.
 
-In drug discovery, identifying molecules that can modulate enzyme activity is a core strategy. 
-By using Km as a scoring function, scientists can assess how different drug candidates affect 
-enzyme-substrate affinity. This method allows for the rapid screening of large libraries of compounds 
-to identify those with the potential to either inhibit or enhance enzyme activity, thus acting as 
-effective drugs or lead compounds.
+In drug discovery, identifying molecules that can modulate enzyme activity is a core strategy. By using $K_m$ as a scoring function, scientists can assess how different drug candidates affect enzyme-substrate affinity. This method allows for the rapid screening of large libraries of compounds to identify those with the potential to either inhibit or enhance enzyme activity, thus acting as effective drugs or lead compounds.
 
-Finally, the ability to predict Michaelis constant for enzyme-substrate pairs where experimental data 
-is lacking opens new options in targeting diseases at the molecular level. For instance, if a mutant enzyme 
-is associated with a particular disease, understanding its substrate affinity could reveal novel 
-therapeutic strategies. These predictions could guide the design of substrate-mimicking drugs or 
-competitive inhibitors, offering targeted interventions with potentially fewer side effects.
+Finally, the ability to predict Michaelis constant for enzyme-substrate pairs where experimental data is lacking opens new options in targeting diseases at the molecular level. For instance, if a mutant enzyme is associated with a particular disease, understanding its substrate affinity could reveal novel therapeutic strategies. These predictions could guide the design of substrate-mimicking drugs or competitive inhibitors, offering targeted interventions with potentially fewer side effects.
 
-In summary, while predicting the Michaelis constant for various protein-substrate pairs presents challenges, 
-its application as a scoring function in drug discovery and enzyme engineering is very promising.
+In summary, while predicting the Michaelis constant for various protein-substrate pairs presents challenges, its application as a scoring function in drug discovery and enzyme engineering is very promising.
+
+\section{Pros and Cons of Sequence- and Structure-based Methods}
+
+The main advantages of sequence-based methods are accessibility, speed, and advancements in Machine Learning. First, protein sequence data is readily available. The UniProt database contains millions of proteins sequences that can directly be used in diverse applications. Second, processing sequences is typically very simple and fast as a sequence is simply a string of amino acids and hence is quickly utilizable (make calculation for a sequence of length 500 in terms of bits). Finally, the recent advancements in Natural Language Processing have open a new avenue for protein related tasks as they can be considered as sentences of words, the amino acids. Hence, Large Language Models can be used for this tasks and models such as ESM2 or ProtTrans have shown very promising results. 
+
+The drawbacks of sequence-based methods, however, stem from their inherent limitations in capturing the full complexity of protein functionality. Sequence data alone often lacks the spatial information necessary to fully understand protein interactions and dynamics. The absence of three-dimensional structural context can limit the predictive power of sequence-based methods, particularly for tasks where the physical arrangement of amino acids is crucial for function. Indeed, in its three-dimensional form, a protein might have parts that are far away in the sequence and that interact together but it is impossible to detect with the sequence alone. 
+
+Structure-based methods, in contrast, offer significant advantages by leveraging the detailed three-dimensional configurations of proteins. The main advantages are functional insights, evolutionary conservation, and detailed interaction modeling. he three-dimensional structure of a protein provides crucial insights into its functional mechanisms, potentially leading to more accurate predictions of protein behavior and interactions. Furthermore, structural features are often conserved across evolutionary divergent proteins, allowing for the identification of functional similarities even in the absence of sequence similarity. Finally, structure-based approaches enable the modeling of specific interactions within the protein active site and between the protein and other molecules, offering a detailed view of potential inhibitory or catalytic sites.
+
+However, the disadvantages of structure-based methods include the requirement for high-quality structural data - which is not always available for all proteins of interest - the computational intensity, and the prediction challenges. Indeed, the PDB only contains a few hundred thousands of structures compared to the millions of sequences in the UniProt database for example. This is because the determination of protein structures through experimental methods like X-ray crystallography or cryo-electron microscopy is time-consuming and resource-intensive. It is however important to note that the AlphaFold database now contains over two hundred million predicted structure and helps manage this problem. However, if some sequences are missing or we need to generate mutants, the generation of new structure is still very time-consuming. Finally, even though AlphaFold2 offered the best performances, it still is very difficult to accurately predict how minor variations in structure affect function. \cite{Buel2022AlphaFold}
+
+In conclusion, while sequence-based methods offer speed and accessibility, leveraging advancements in ML and NLP, they sometimes fall short in tasks where understanding the spatial arrangement of amino acids is key. Structure-based methods fill this gap by providing detailed insights into the three-dimensional configurations of proteins, essential for many functional predictions and drug design efforts. However, the reliance on high-quality structural data and the challenges in obtaining or accurately predicting such data pose significant hurdles. Thus, an integrative approach that combines the strengths of both sequence- and structure-based methods represents a promising direction for future research in protein science.
+
+\section{Enzyme Modeling Strategies}
