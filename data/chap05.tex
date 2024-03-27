@@ -4,7 +4,7 @@
 
 \section{Introduction}
 
-As mentioned in the previous chapter, no method using structural information exists for the prediction of the Michaelis constant. Hence, methods combining both sequential and structural information also do not exists. However, in the field of protein design, a few models started using both sequential and structural features and have shown promising results such as \citeauthor{wu2023a}'s work that use structure-sequence co-design for antibodies and offer state-of-the-art results in the field.
+As mentioned in the introduction of the previous chapter (Chapter \ref{chap:4}), no method using structural information exists for the prediction of the Michaelis constant. Hence, methods combining both sequential and structural information also do not exists. However, in the field of protein design, a few models started using both sequential and structural features and have shown promising results such as the work of \citeauthor{wu2023a} that use structure-sequence co-design for antibodies and offer state-of-the-art results in the field.
 
 In this chapter, we present the first ensemble method that uses both sequential and structural information for Michaelis constant prediction, SeqStructKm. Not only does it outperforms 3 out of the 4 current-state-of-the art models but it also outperforms the best model, ProSmith, on the cold proteins and cold substrates subset, which is of significant importance for drug design. This demonstrates the efficacy of our method and promising opportunities for future work.
 
@@ -13,7 +13,7 @@ In this chapter, we present the first ensemble method that uses both sequential 
 For this ensemble method, we are building upon our existing sequence-based and structure-based models and we
 experimented several methods. To do so, we used our trained model to predict the validation set. We then used
 the predictions on the validation set as training samples for different methods such as trees and linear
-regression, where we observed the best results: a MSE of 0.636 and a $r^2$ of 0.540, which outperform all benchmark models but ProSmith, indicating the superiority of our methods compared to previous methods. More specifically, we also obtained the following results :
+regression, where the latter offered the best results: a MSE of 0.636 and a $r^2$ of 0.540, which outperforms all benchmark models but ProSmith, indicating the superiority of our methods compared to previous methods. More specifically, we also obtained the hot/cold results of Table \ref{tab:seqstruct_test}.
 
 \begin{table}[ht]
   \centering
@@ -25,16 +25,16 @@ regression, where we observed the best results: a MSE of 0.636 and a $r^2$ of 0.
   \textbf{Cold protein} & 985 & 0.682 & 0.553 & 98 & 1.091 & 0.124 \\ \hline
   \end{tabular}
   \caption{SeqStructKm results on the test set}
-  \label{tab:summary_performance}
+  \label{tab:seqstruct_test}
 \end{table}
 
-For hot proteins and substrates, even though both SeqKm and StructKm have a correlation coefficient $r^2$ of 0.485, our ensemble method obtains 0.563, well above previous results. This indicates that combining both approaches increase the performance and that the two models are compatible and do not have the same error distribution. These results are still below ProSmith but are very promising.
+For hot proteins and substrates, even though both SeqKm and StructKm have a coefficient of determination $r^2$ of 0.485, our ensemble method obtains 0.549, well above previous results. This indicates that combining both approaches increase the performance and that the two models are compatible and do not have the same error distribution. These results are still below ProSmith but are very promising.
 
-Similary, for hot proteins and cold substrates, and cold proteins and hot substrates, our combined method outperforms our previous sequence-based and structure-based models quite significantly, underlining the complementarity of our models not only for seen proteins and substrates but also unseen ones. However, these results are still below ProSmith performances. Furthermore, for cold proteins and hot substrates, we also obtain better results than for hot proteins and substrates, indicating that our models still favors the substrate information over the protein information, even though we biologically know that it should be the other way around. 
+Similary, for hot proteins and cold substrates, and cold proteins and hot substrates, our combined method outperforms our previous sequence-based and structure-based models quite significantly, underlining the complementarity of our models not only for seen proteins and substrates but also unseen ones. However, these results are still below ProSmith performances. Furthermore, for cold proteins and hot substrates, we also obtain better results than for hot proteins and substrates, indicating that our models still favors the substrate information over the protein information, even though we biologically expect the opposite. 
 
-Finally, for cold proteins and substrates, we obtain 0.124 for the correlation coefficient $r^2$, which is well above ProSmith and still very close to the 0.135 we obtained from StructKm only. Indeed, the -0.004 of SeqKm barely impacted our model, which futhermore indicates that our two models are complementary. However, this results is still far below the results of other groups and while it outperforms ProSmith's, there is still room for improvement.
+Finally, for cold proteins and substrates, we obtain 0.124 for the coefficient of determination $r^2$, which is well above ProSmith and still very close to the 0.135 we obtained from StructKm only. Indeed, the -0.004 of SeqKm barely impacted our model, which futhermore indicates that our two models are complementary. However, this results is still far below the results of other groups and while it outperforms ProSmith's, there is still room for improvement.
 
-And for the new test set, we obtained a MSE of 0.995 and a $r^2$ of 0.435:
+And for the new test set, we obtained a MSE of 0.995 and a $r^2$ of 0.435 and the hot/cold results of Table \ref{tab:seqstruct_test_new}.
 
 \begin{table}[ht]
   \centering
@@ -46,17 +46,18 @@ And for the new test set, we obtained a MSE of 0.995 and a $r^2$ of 0.435:
   \textbf{Cold seq} & 1117 & 0.908 & 0.464 & 102 & 2.032 & 0.011 \\ \hline
   \end{tabular}
   \caption{SeqStructKm results on the new test set}
-  \label{tab:summary_performance}
+  \label{tab:seqstruct_test_new}
 \end{table}
 
 Once again, commenting on the new test set is difficult because of the impact of the low similarity of the sequences with the UniProtIDs and hence the structure used by our models. We will however note that these results are better than the structure-based method only. 
 
+\section{Conclusion}
 In summary, the ensemble method designed to integrate both sequence-based and structure-based models has demonstrated promising results across all categories of protein-substrate pairs. Ideally, we would anticipate this approach to capitalize on the strengths of each model, minimizing their individual weaknesses through strategic combination. This expectation aligns with the observed performance improvements, particularly for the challenging scenarios involving unseen proteins or substrates.
 
-The enhanced performance in hot proteins and substrates, with an $r^2$ of 0.563, showcases the ensemble method's ability to surpass the capabilities of its component models by leveraging their complementary features. This is a critical advancement, suggesting that errors inherent to either model do not overlap significantly and can be mitigated when combined. Although still behind ProSmith, the results are encouraging and point toward the viability of the ensemble approach for increasing prediction accuracy.
+The enhanced performance in hot proteins and substrates, with an $r^2$ of 0.549, showcases the ensemble method's ability to surpass the capabilities of its component models by leveraging their complementary features. This is a critical advancement, suggesting that errors inherent to either model do not overlap significantly and can be mitigated when combined. Although still behind ProSmith, the results are encouraging and point toward the viability of the ensemble approach for increasing prediction accuracy.
 
 Moreover, the notable improvements seen in situations involving hot proteins with cold substrates, and vice versa, further validate the method's utility across both familiar and novel contexts. This versatility underscores the method's potential in broadening the scope of accurate Michaelis constant prediction beyond the limitations of existing models.
 
-The most significant achievement of the ensemble method is observed in the cold proteins and substrates category. Achieving an $r^2$ of 0.124, the method not only markedly outperforms SeqKm but also closely rivals StructKm's, despite the latter's focus on structural information which is traditionally more informative in such unknown scenarios. This success signals the ensemble method's proficiency in extracting and combining crucial insights from both sequence and structure, even in the absence of prior knowledge.
+The most significant achievement of the ensemble method is observed in the cold proteins and substrates category. Achieving an $r^2$ of 0.124, the method not only markedly outperforms SeqKm and ProSmith but also closely rivals StructKm's. This success highlights the ensemble method's proficiency in extracting and combining crucial insights from both sequence and structure, even in the absence of prior knowledge.
 
-Collectively, these results illustrate the ensemble method's robustness and adaptability, reinforcing the hypothesis that a hybrid approach can indeed bridge the gap between sequence-based and structure-based prediction models. 
+Collectively, these results illustrate the ensemble method's robustness and adaptability, reinforcing the hypothesis that a hybrid approach can indeed bridge the gap between sequence-based and structure-based prediction models.

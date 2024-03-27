@@ -1,33 +1,33 @@
 % !TeX root = ../thuthesis-example.tex
 
 \chapter{Structure-based Method}
+\label{chap:4}
 
 \section{Introduction}
 
 So far in the literature, no model has used protein structural information for predicting the Michaelis
 constant. However, it is known that the protein structure, also known as the terciary structure of a protein - in
-opposition to the protein sequence which is known to be the primary structure of a protein - is essential. Indeed,
+opposition to the protein sequence which is known to be the primary structure of a protein - is essential. \cite{lehninger} Indeed,
 even though the sequence contains all the necessary information for a protein expression, many models cannot
 extract all the necessary meaningful information from the primary structure and require more information. This is
 where the protein structure can improve the predictions. 
 
 Many research efforts have been put into predicting the structure of proteins such as AlphaFold or ESMFold and
 these structure can be use down the line for concrete applications such as the acceleration of design 
-of a drug to treat hepatocellular carcinoma (HCC), the most common type of primary liver cancer (https://www.artsci.utoronto.ca/news/new-study-uses-alphafold-and-ai-accelerate-design-novel-drug-liver-cancer)
-Since the release of the AlphaFold database that contains over 200 millions structures, these methods have multiplied.
+of a drug to treat hepatocellular carcinoma (HCC), the most common type of primary liver cancer. \cite{Buel2022AlphaFold,Lin2023ProteinStructure,D2SC05709C}
+Since the release of the AlphaFold database that contains over 200 millions structures, these methods have multiplied. \cite{Varadi2022AlphaFold}
 However, so far they haven't been used for predicting the Michaelis constant and our work is, to our knowledge, 
 the first one to explore the use of protein structure for $K_m$ prediction.
 
 In this chapter, we present StuctKm, a deep learning model that makes use of the protein structures of the
 AlphaFold database. This method does not require any pretraining, making it fast and easily trainable. 
 
-While the global results only outperform one out of our four benchmark models, it shows better performance 
-than the current best model on the most important subset: cold proteins and cold substrates.
+While the global results only outperform one out of our four benchmark models, it shows better performance than the current best model on the most important subset: cold proteins and cold substrates.
 
 \section{Methods}
 
 We now describe our data preprocessing step, input representation, model achitecture, training details, and results. 
-Figure \ref{fig:seqkm} provides an overview of our method.
+Figure \ref{fig:structkm} provides an overview of our method.
 
 \begin{figure}
   \centering
@@ -41,55 +41,43 @@ Figure \ref{fig:seqkm} provides an overview of our method.
 While the sequences were already present in the $K_m$ dataset, the structures were not. It was therefore necessary
 for us to retrive them in order to use them for our structure-based model. To do so, we followed these steps:
 \begin{enumerate}
-  \item Identify the UniProtID of each sequence of our dataset. If it doesn't exist, find the UniProtID with the 
+  \item Identify the UniProt ID of each sequence of our dataset. If it doesn't exist, find the UniProt ID with the 
   highest sequence similarity rate.
   \item Download the PDB file from the AlphaFold database.
 \end{enumerate}
 
-\subsubsection{Retriving UniProtIDs}
-First, we need to retrive the UniProtIDs of all the sequences of our dataset. The reason behind this is that
+\subsubsection{Retriving UniProt IDs}
+First, we need to retrive the UniProt IDs of all the sequences of our dataset. The reason behind this is that
 AlphaFold contains almost all the structure of the UniProt database, making it easy to obtain the structure.
 Indeed, using only the sequence as a tool to find the relevant structure in the AlphaFold database led to finding
 less than 50\% of the structures for our sequences.
 
-The Universal Protein Resource (UniProt) is a comprehensive resource for protein sequence and annotation. The 
-UniProt database is composed of the UniProt Knowledgebase (UniProtKB), the UniProt Reference Clusters (UniRef), 
-and the UniProt Archive (UniParc). Specifically, UniProtKB is a comprehensive resource for protein sequence 
-and annotation data. It consists of two sections: UniProtKB/Swiss-Prot and UniProtKB/TrEMBL. 
-UniProtKB/Swiss-Prot provides manually annotated records with information verified by experts, 
-focusing on accuracy and reliability. These annotations include function descriptions, 
-domain structure, post-translational modifications, variants, and many other biological insights. 
-UniProtKB/TrEMBL, on the other hand, contains automatically annotated records that have not yet been 
-reviewed by humans. In this work, we will only use UniProtKB/Swiss-Prot.
-
-To identify the UniProtID related to our protein sequences, we used a bioinformatics program called 
-Basic Local Alignment Search Tool (BLAST). It can be used for comparing protein or nucleotides to sequence databases.
-Specifically, we used blastp that is designed for proteins only and we compared our sequences to the 
-UniProtKB/Swiss-Prot database. 
+To identify the UniProt ID related to our protein sequences, we used a bioinformatics program called Basic Local Alignment Search Tool (BLAST). It can be used for comparing protein or nucleotides to sequence databases. Specifically, we used blastp that is designed for proteins only and we compared our sequences to the UniProtKB/Swiss-Prot database. 
 
 For 80\% of our sequences, we found an above 100\% sequence similarity, indicating a perfect match between our
 sequence and the sequence in the UniProtKB/Swiss-Prot dataset. For the 20\% remaining, the sequence similarity is
 still relatively high (above 90\% for a large proportion), indicating a high similarity. Even though the match is
-not perfect, we will use these UniProtIDs and related structures and will detail in the discussion section their
-impact on the results.
+not perfect, these alignments are considered sufficiently close to proceed with confidence. This high degree of similarity ensures that the structures retrieved from the AlphaFold database based on these UniProt IDs will be relevant and representative of our sequences.
+
+For the new test set, however, the sequence similarity was at 34\%, which is very low. In an effort to be consistent, we will however still present the results for this dataset. This will also offer a new perspective and also allow us to comment on the importance of have the right structure for a given protein. 
 
 \subsubsection{Downloading the PDB files}
 
-Second, once all the UniprotIDs of our sequences have been retrieved, we can download their PDB files.
+Second, once all the UniProt IDs of our sequences have been retrieved, we can download their PDB files.
 
 A Protein Data Bank (PDB) file is a text file that contains the three-dimensional structures of molecules like
-proteins and nuclic acids. These files include atomic coordinates, secondary structure assignments, 
+proteins and nuclic acids. \cite{Berman2000ProteinDataBank} These files include atomic coordinates, secondary structure assignments, 
 and atomic connectivity, among other experimental metadata. The PDB format is a legacy file format that 
 has been succeeded by the mmCIF format, but it is still widely used and supported by many molecular 
 visualization software applications and will be used in this work.
 
 The AlphaFold database offers all the structures predicted by the AlphaFold 2 model in PDB and mmCIF formats. 
-We therefore downloaded all the structures of our UniProtIDs. 
+We therefore downloaded all the structures of our UniProt IDs. 
 
-\textbf{Note:} While UniprotIDs are unique, they might refer to the same sequences. This means that one sequence can have
-several UniProtIDs. However, in the AlphaFold database, for most of the data, the structure was only generated 
-for one of these UniProtIDs. Hence, before downloading the structure, we added a step to make sure to have 
-the UniprotID related to the structure in the AlphaFold database.
+\textbf{Note:} While UniProt IDs are unique, they might refer to the same sequences. This means that one sequence can have
+several UniProt IDs. However, in the AlphaFold database, for most of the data, the structure was only generated 
+for one of these UniProt IDs. Hence, before downloading the structure, we added a step to make sure to have 
+the UniProt ID related to the structure in the AlphaFold database.
 
 \subsection{Input representation}
 
@@ -97,7 +85,7 @@ Let a protein structure be defined as a tuple $P = (S, \Sigma, \Theta, \Phi)$ wh
 
 
 \begin{itemize}
-  \item $P=a_1a_2a_3...a_n$ is the primary structure, a sequence of amino acids where each 
+  \item $S=a_1a_2a_3...a_n$ is the primary structure, a sequence of amino acids where each 
   $a_i \in A$ for $i \in \{1,..,n\}$, and $A=\{A,C,D,E,F,G,H,I,K,L,M,N,P,Q,R,S,T,V,W,Y,X\}$ is the set of 
   standard amino acids including an unknown amino acid $X$.
   \item $\Sigma = {\sigma_1, \sigma_2, ..., \sigma_m}$ represents the secondary structure, a set of 
@@ -119,14 +107,24 @@ Let a protein structure be defined as a tuple $P = (S, \Sigma, \Theta, \Phi)$ wh
 
 Our goal is to make use of the protein as a PDB file and no longer rely on only its primary structure but 
 also its terciary structure. To do so, we will use a graph representation of a protein. Each amino acid will
-be represented as a node and the edges between the nodes will depends on the distance to the nodes. If the
+be represented as a node and the edges between the nodes will depends on the distance to the nodes (Figure \ref{fig:graphprot}). If the
 alpha-carbons of two amino acids are less than 6 {\AA} away, then there will be an edge between them. 
-If they are apart of more than 6 {\AA}, then they will not be connected. Later on, we will use Graph Neural Networks
+If they are apart of more than 6 {\AA}, then they will not be connected. 
+
+\begin{figure}
+  \centering
+  \includegraphics[width=0.5\linewidth]{4-graph_protein.png}
+  \caption{Graph representation of a protein}
+  \label{fig:graphprot}
+\end{figure}
+
+
+Later on, we will use Graph Neural Networks (GNNs)
 and the message-passing paradigm that allows use to connect and allow interactions between amino acids that
 might be far from each other in the protein sequence but close in its three-dimensional structure, hence making 
 use of the structural information.
 
-Furthermore, we will use the ESM2 model to generate the embeddings of the nodes of our protein graph. As the nodes
+Furthermore, we will use the ESM2 model to generate the embeddings of the nodes of our protein graph. \cite{lin2022language} As the nodes
 of our protein graph represent amino acids, we can use ESM2 to generate the embedding vector for each amino acid
 of the sequence, that we then feed to the relevant node. This allows to add sequential information to our graph.
 
@@ -163,7 +161,7 @@ value, the Michaelis constant $K_m$.
 \subsection{Training details}
 
 We trained and validated our results on the same dataset we used for the sequence-based model. The only difference
-being that the sequences are replaced by protein graphs. The prediction to make however is exactly the same and 
+being that the sequences are replaced by protein graphs. The prediction to make is exactly the same and 
 therefore the exact same methodology can be used for evaluation.
 
 Once again, we trained our model over 300 epochs using the Adam optimizer with $\beta_1=0.9$ and $\beta_2=0.999$, and an initial
@@ -182,7 +180,7 @@ Finally, after looking at the best metrics for the validation test, we reverted 
 
 \section{Results}
 
- Using the model and the training strategy presented above, we obtain a MSE of 0.712 and a $r^2$ of 0.485 for the test set. Once again, our model only outperforms one of the four models of our benchmark for these general metrics. We also obtained the following hot/cold results for this dataset:
+ Using the model and the training strategy presented above, we obtain a MSE of 0.712 and a $r^2$ of 0.485 for the test set. Once again, our model only outperforms one of the four models of our benchmark for these general metrics. The hot/cold results for this dataset are described in Table \ref{tab:structkm_results}.
 
  \begin{table}[ht]
   \centering
@@ -197,15 +195,15 @@ Finally, after looking at the best metrics for the validation test, we reverted 
   \label{tab:structkm_results}
 \end{table}
 
-For hot proteins and hot substrates, StructKm yields results comparable to SeqKm with an MSE of 0.644 and correlation coefficient $r^2$ of 0.485, suggesting that incorporating structural information does not significantly outperform sequence knowledge for familiar proteins and substrates. Furthermore, these results are still not on par with ProSmith.
+For hot proteins and hot substrates, StructKm yields results comparable to SeqKm with an MSE of 0.644 and coefficient of determination $r^2$ of 0.485, suggesting that incorporating structural information does not significantly outperform sequence knowledge for familiar proteins and substrates. Furthermore, these results are still not on par with ProSmith.
 
-For got proteins and cold substrates, SeqKm and StructKm exhibit decreased performance in this scenario, with SeqKm showing an MSE of 0.821 and correlation coefficient $r^2$ of 0.449, and StructKm slightly better at 0.795 MSE and 0.475 correlation coefficient $r^2$. The results indicate a challenge in generalizing to unseen substrates, which might be slightly decreased by structural insights in StructKm.
+For got proteins and cold substrates, SeqKm and StructKm exhibit decreased performance in this scenario, with SeqKm showing an MSE of 0.821 and coefficient of determination $r^2$ of 0.449, and StructKm slightly better at 0.795 MSE and 0.475 coefficient of determination $r^2$. The results indicate a challenge in generalizing to unseen substrates, which might be slightly decreased by structural insights in StructKm.
 
 For cold proteins and hot substrates, StructKm has lower performance than both ProSmith and SeqKm, suggesting that structural model may find it more difficult to retain essential information for unseen proteins. 
 
-For cold proteins and cold substrates however, tructKm performs better than both (MSE: 1.066, $r^2$: 0.135), which, while still not ideal, suggests that structural information may slightly improve model resilience in fully novel contexts. Indeed, while the results are still low and far behind the other metrics, it is 64\% better than ProSmith, the state-of-the-art method and hence indicate a superior ability of our model to generalize to completely unseen proteins and substrates, which can become essential for designing completely new drugs and enzymes. 
+For cold proteins and cold substrates however, StructKm has an MSE: 1.066 and $r^2$: 0.135, and outperforms both SeqKm and ProSmith. While still not ideal, this suggests that structural information may slightly improve model resilience in fully novel contexts. Indeed, even though the results are still low and far behind the other metrics, it is 64\% better than ProSmith, the state-of-the-art method and hence indicate a superior ability of our model to generalize to completely unseen proteins and substrates, which can become essential for designing completely new drugs and enzymes. 
 
-For the new test set, we obtain a total MSE of 1.257 and a total $r^2$ of 0.286. In details:
+For the new test set, we obtain a total MSE of 1.257 and a total $r^2$ of 0.286. The details are presented in Table \ref{tab:struct_new_test}.
 
 \begin{table}[ht]
   \centering
@@ -217,12 +215,10 @@ For the new test set, we obtain a total MSE of 1.257 and a total $r^2$ of 0.286.
   \textbf{Cold seq} & 1117 & 1.175 & 0.306 & 102 & 2.202 & -0.078 \\ \hline
   \end{tabular}
   \caption{StructKm results on the new test set}
-  \label{tab:summary_performance}
+  \label{tab:struct_new_test}
 \end{table}
 
-Here, both the general results and specific hot/cold results are very dissapointing. This is because there is a low similarity (34\%) between the UniProtID that we retrieved and the sequences themselves. This mean that the sequences and structures obtain from the UniProt and AlphaFold databases are widely different. While the similarity was very high for the regular dataset, this no longer holds for the new test set and hence the results do not represent the reality of the proteins and their interactions with their substrate. We however decided to include them not only to be consistent with our entire analysis but also to see how the model performs when the inputs are incorrect.
-
-As expected, the results are lower, indicating that the accuracy of sequence and structure alignment is crucial for the model's predictive performance. This significant discrepancy between the expected and obtained sequences and structures from the UniProt and AlphaFold databases for the new test set highlights the importance of data quality and alignment in computational models of enzyme kinetics. The low similarity of 34\% suggests that the model is working with inputs that do not accurately reflect the true biological systems they aim to represent, leading to predictions that diverge substantially from expected outcomes.
+Here, both the general results and specific hot/cold results are very dissapointing. This is because there is a low similarity (34\%) between the UniProt ID that we retrieved and the sequences themselves. This mean that the sequences and structures obtain from the UniProt and AlphaFold databases are widely different. While the similarity was very high for the regular dataset, this no longer holds for the new test set and hence the results do not represent the reality of the proteins and their interactions with their substrate. We however decided to include them not only to be consistent with our entire analysis but also to see how the model performs when the inputs are incorrect.
 
 This scenario emphasizes the critical role of accurate and representative data in computational biology. The divergence in sequence and structure similarity directly impacts the model's ability to generalize and accurately predict Michaelis constants, underlining the dependency of computational predictions on the fidelity of the input data. The inclusion of these results in our analysis, despite their disappointing nature, is instrumental in illustrating the challenges faced when discrepancies in data quality and alignment occur. It serves as a strong reminder of the complexities involved in modeling biological systems, where the integrity of input data is paramount.
 
@@ -232,11 +228,15 @@ Overall, our method offer better performances only for 1 out of the 4 models of 
 
 \section{Pocket Detection Model}
 
-In this section, we present an alternative to the structure-based model, Pocket-StructKm. So far, we have always presented a model using the entire protein. However, as we explained it in Section \textcolor{red}{literature review}, the reaction between the enzyme and the substrate operate in a specific part of the protein which is called a pocket. Hence, we believe that if we can efficiently find the pocket for each protein and use it instead of the entire sequence, we may obtain better results and reduce the noise inputed by parts of the protein that  are not relevant for predicting the Michaelis constant. 
+In this section, we present an alternative to the structure-based model, Pocket-StructKm. So far, we have always presented a model using the entire protein. However, as we explained it in Section \ref{section:enzyme}, the reaction between the enzyme and the substrate operate in a specific part of the protein which is called a pocket. Hence, we believe that if we can efficiently find the pocket for each protein and use it instead of the entire sequence, we may obtain better results and reduce the noise inputed by parts of the protein that  are not relevant for predicting the Michaelis constant. 
 
-To do, different methods can be used and we will focus on fpocket. fpocket is an open-source command line tool designed for the identification and analysis of protein pockets. It is widely used in computational biology as it predicts potential binding sites on the surface of protein structures and do so very quickly compared to other more novel and more computaionally expensive deep learning methods for pocket detection.
+To do, different methods can be used and we will focus on fpocket. \cite{LeGuilloux2009Fpocket} fpocket is an open-source command line tool designed for the identification and analysis of protein pockets. It is widely used in computational biology as it predicts potential binding sites on the surface of protein structures and do so very quickly compared to other more novel and more computaionally expensive deep learning methods for pocket detection.
 
-We therefore used fpocket to identify the best pockets for each of our protein structure, selected the top one pocket, and then took the subgraph corresponding to this predicted pocket and used it as an input in our structure-based model. The subgraph  being a graph, the model didn't required any modification. With a similar methodoly than previously, we trained our model and obtained an MSE of 0.770 and a correlation coefficient of 0.443. Specifically, we have:
+We therefore used fpocket to identify the best pockets for each of our protein structure, selected the best pocket, took the subgraph corresponding to this predicted pocket, and used it as an input in our structure-based model. The subgraph  being a graph, the model didn't required any modification. 
+
+\subsection{Results}
+
+With a similar methodoly than previously, we trained our model and obtained an MSE of 0.770 and a coefficient of determination of 0.443. Specifically, the hot/cold results are available in Table \ref{tab:results_pocket_test}.
 
 \begin{table}[ht]
   \centering
@@ -251,19 +251,19 @@ We therefore used fpocket to identify the best pockets for each of our protein s
   \label{tab:results_pocket_test}
  \end{table}
 
- Analyzing the results from the pocket-based approach, as illustrated in the table, provides a nuanced view of its performance across the different protein and substrate familiarity scenarios:
+Analyzing the results from the pocket-based approach, as illustrated in the table, provides a nuanced view of its performance across the different protein and substrate familiarity scenarios:
 
- For hot proteins and hot substrates, the pocket approach yields an MSE of 0.672 and an $r^2$ of 0.461. These results indicate a slight decrease in performance compared to both StructKm and SeqKm for familiar protein-substrate pairs. This suggests that while pocket-based information is relevant, it may not capture the full complexity of interactions as effectively as global structural or sequence features in familiar contexts.
+For hot proteins and hot substrates, the pocket approach yields an MSE of 0.672 and an $r^2$ of 0.461. These results indicate a slight decrease in performance compared to both StructKm and SeqKm for familiar protein-substrate pairs. This suggests that while pocket-based information is relevant, it may not capture the full complexity of interactions as effectively as global structural or sequence features in familiar contexts.
  
- When examining hot proteins with cold substrates, the pocket approach shows an MSE of 0.934 and an $r^2$ of 0.373. This performance dip highlights the challenges inherent in predicting interactions with completely new substrates, even when the protein context is well-understood. The decrease in performance here, relative to StructKm, suggests that the specific interaction sites may not fully compensate for the lack of global structural information in these scenarios.
+When examining hot proteins with cold substrates, the pocket approach shows an MSE of 0.934 and an $r^2$ of 0.373. This performance dip highlights the challenges inherent in predicting interactions with completely new substrates, even when the protein context is well-understood. The decrease in performance here, relative to StructKm, suggests that the specific interaction sites may not fully compensate for the lack of global structural information in these scenarios.
  
- In the context of cold proteins and hot substrates, the results (MSE: 0.823, $r^2$: 0.461) further underscore the difficulties faced by the pocket approach in generalizing to unseen proteins. Despite having known substrates, the model struggles, possibly due to insufficient representation of the novel protein's active site within the training data. This aligns with expectations, as predicting interactions for entirely new proteins poses a significant challenge without comprehensive structural or sequence knowledge.
+In the context of cold proteins and hot substrates, the results (MSE: 0.823, $r^2$: 0.461) further underscore the difficulties faced by the pocket approach in generalizing to unseen proteins. Despite having known substrates, the model struggles, possibly due to insufficient representation of the novel protein's active site within the training data. This aligns with expectations, as predicting interactions for entirely new proteins poses a significant challenge without comprehensive structural or sequence knowledge.
  
- The cold proteins and cold substrates category, with an MSE of 1.324 and an $r^2$ of -0.063, reveals the pocket approach's most significant limitations. This negative $r^2$ value indicates a model performance worse than simple mean prediction, emphasizing the challenge of generalizing to completely novel interactions without any prior knowledge. Although this outcome was somewhat anticipated given the complexity of modeling entirely new enzyme-substrate interactions, it highlights the need for further methodological improvements.
+The cold proteins and cold substrates category, with an MSE of 1.324 and an $r^2$ of -0.063, reveals the pocket approach's most significant limitations. This negative $r^2$ value indicates a model performance worse than simple mean prediction, emphasizing the challenge of generalizing to completely novel interactions without any prior knowledge. Although this outcome was somewhat anticipated given the complexity of modeling entirely new enzyme-substrate interactions, it highlights the need for further methodological improvements.
  
- Comparatively, the pocket approach does not consistently outperform the sequence-based SeqKm or the structure-based StructKm, particularly in more challenging scenarios involving cold proteins and/or substrates. The observed performance trends reinforce the notion that while pocket-based predictions offer valuable insights, especially in familiar contexts, they may require integration with broader sequence or structural data to fully capture the dynamics of enzyme-substrate interactions.
+Comparatively, the pocket approach does not consistently outperform the sequence-based SeqKm nor the structure-based StructKm, particularly in more challenging scenarios involving cold proteins and/or substrates. The observed performance trends reinforce the notion that while pocket-based predictions offer valuable insights, especially in familiar contexts, they may not be the most accurate. This requires further investigation as the use of the pockets would biological makes more sense than the full protein and limit the noise.
 
-For the new test set, we have an MSE of 1.233 and a correlation coefficient of 0.300. Specifically,
+For the new test set, we have an MSE of 1.233 and a coefficient of determination of 0.300. Specifically, the hot/cold results are available in Table \ref{tab:results_pocket_new_test}.
 
 \begin{table}[ht]
   \centering
@@ -278,21 +278,24 @@ For the new test set, we have an MSE of 1.233 and a correlation coefficient of 0
   \label{tab:results_pocket_new_test}
  \end{table}
 
-For hot proteins and substrates, StructKm recorded an MSE of 1.439 and an correlation coefficient $r^2$ of 0.067, indicating some struggle in accurately predicting Michaelis constants even for known sequences. The pocket approach shows a slight improvement with an MSE of 1.322 and an correlation coefficient $r^2$ of 0.114. This suggests that the pocket model, despite its challenges, can offer a marginally better understanding of familiar interactions than StructKm in this specific context for our new test set.
+For hot proteins and substrates, StructKm recorded an MSE of 1.439 and an coefficient of determination $r^2$ of 0.067, indicating some struggle in accurately predicting Michaelis constants even for known sequences. The pocket approach shows a slight improvement with an MSE of 1.322 and an coefficient of determination $r^2$ of 0.114. This suggests that the pocket model, despite its challenges, can offer a marginally better understanding of familiar interactions than StructKm in this specific context for our new test set.
 
-In scenarios with known proteins but new substrates, StructKm achieves an MSE of 0.827 and an correlation coefficient $r^2$ of -0.190, while the pocket model posts an MSE of 0.873 and an correlation coefficient $r^2$ of -0.289. Both models demonstrate a decrease in predictive accuracy, indicative of the complexity of modeling interactions with unfamiliar substrates. However, StructKm appears slightly more resilient than the pocket approach, likely due to its broader consideration of structural features beyond the active site.
+In scenarios with known proteins but new substrates, StructKm achieves an MSE of 0.827 and an coefficient of determination $r^2$ of -0.190, while the pocket model posts an MSE of 0.873 and an coefficient of determination $r^2$ of -0.289. Both models demonstrate a decrease in predictive accuracy, indicative of the complexity of modeling interactions with unfamiliar substrates. However, StructKm appears slightly more resilient than the pocket approach, likely due to its broader consideration of structural features beyond the active site.
 
-When faced with new proteins and familiar substrates, StructKm delivers an MSE of 1.175 and an correlation coefficient $r^2$ of 0.306, compared to the pocket model's MSE of 1.166 and correlation coefficient $r^2$ of 0.312. Both models show comparable performances, suggesting a shared capacity to leverage known substrate information effectively. This parity indicates that both models' approaches to understanding substrate interaction are similarly effective in the context of novel proteins.
+When faced with new proteins and familiar substrates, StructKm delivers an MSE of 1.175 and an coefficient of determination $r^2$ of 0.306, compared to the pocket model's MSE of 1.166 and coefficient of determination $r^2$ of 0.312. Both models show comparable performances, suggesting a shared capacity to leverage known substrate information effectively. This parity indicates that both models' approaches to understanding substrate interaction are similarly effective in the context of novel proteins.
 
-For completely novel protein-substrate pairs, StructKm records an MSE of 2.202 and an correlation coefficient $r^2$ of -0.078, whereas the pocket approach demonstrates an MSE of 2.033 and an correlation coefficient $r^2$ of 0.010. Although both models struggle significantly in this scenario, the pocket model exhibits a slight edge in performance. This may imply that focusing on active site interactions, even in the absence of broader structural or sequence familiarity, provides a modest advantage in predicting the behavior of wholly new interactions.
+For completely novel protein-substrate pairs, StructKm records an MSE of 2.202 and an coefficient of determination $r^2$ of -0.078, whereas the pocket approach demonstrates an MSE of 2.033 and an coefficient of determination $r^2$ of 0.010. Although both models struggle significantly in this scenario, the pocket model exhibits a slight edge in performance. This may imply that focusing on active site interactions, even in the absence of broader structural or sequence familiarity, provides a modest advantage in predicting the behavior of wholly new interactions.
 
 Once again, these results on the new test set are to be taken with a grain of salt because of the low similarity between protein sequences and the structures used. Hence, we could compare the performance of StructKm and Pocket-StructKm on this dataset as the inputs come from the same structures but these results still offer very limited insights for the whole process.
 
-Put aside this new test set, we observe that our results for the pocket model are lower than for the full protein. To understand why in details, we made an analysis on the pockets we found, the main goal being to determine if the pockets we found were actual pockets. This task is difficult as our protein structure are generated by AlphaFold and hence do not contain any annotations about the real pocket where the enzymatic reaction happens. However, some of the proteins possess experimentally determined crystallographic structures where the pocket is anotated. From  these, we can have a better understanding of our model and its capabilities.
+Put aside this new test set, we observe that our results for the pocket model are lower than for the full protein. To understand why in details, we made an analysis on the pockets we found, the main goal being to determine if the pockets we found were actual pockets. 
+
+\subsection{Pocket Analysis}
+This task is difficult as our protein structure are generated by AlphaFold and hence do not contain any annotations about the real pocket where the enzymatic reaction happens. However, some of the proteins possess experimentally determined crystallographic structures where the pocket is anotated. From  these, we can have a better understanding of our model and its capabilities.
 
 Hence for all the protein which had a known crystallographic structure, we retrieved them from the Protein Data Bank and run the fpocket algorithm on top of it to verify if the real pocket where indeed at the locations predicted by the algorithm. We manage to retrieve around 2,000 real structures which is about 20\% of our dataset. While it is only a subset of our dataset, we should still be able to obtain meaningful insights that may explain the lower performance.
 
-Running the fpocket algorithm on these crystallographic structures, we obtain the following results:
+Running the fpocket algorithm on these crystallographic structures, we obtain the following results indicating if the pocket has been correctly identified:
 \begin{itemize}
   \item Top 1: 55.17\%
   \item Top 3: 69.62\%
@@ -304,4 +307,14 @@ our model is performing more poorly using pockets that the entire structure.
 
 While leveraging local information from pockets, as opposed to global structural data, aligns with biological intuition and has potential merit, the limitations of relying solely on the highest-ranked pocket prediction by fpocket became apparent. Although considering the top 3 or top 5 pockets might offer a better representation, such an approach would necessitate a more sophisticated method to incorporate multiple pockets into the model effectively. Exploring alternative pocket detection algorithms was considered; however, given the satisfactory performance achievable with full structure analysis, we opted against further pursuit in this direction.
 
-Consequently, we conclude this exploration with the understanding that while pocket-focused analysis holds theoretical appeal for enzyme function prediction, the practical challenges of accurate pocket identification limit its current utility. Moving forward, our focus will shift towards optimizing the use of global structural information, which has demonstrated promising results and offers a more reliable foundation for our continued research into enzyme kinetics modeling. This strategic pivot underscores our commitment to advancing the field through methods that balance biological relevance with computational feasibility.
+Consequently, we conclude this exploration with the understanding that while pocket-focused analysis holds theoretical appeal for enzyme function prediction, the practical challenges of accurate pocket identification limit its current utility. Moving forward, our focus will shift towards optimizing the use of global structural information, which has demonstrated promising results and offers a more reliable foundation for our work.
+
+\section{Conclusion}
+
+StructKm's performance, assessed against benchmark models, illustrates its capability in certain contexts, particularly with novel interactions between proteins and substrates. However, the model's efficacy is closely tied to the quality and accuracy of input data, a common challenge in computational biology that affects model reliability and generalization.
+
+The introduction of Pocket-StructKm represents a shift towards exploiting localized structural information, hypothesized to provide a more direct correlation with enzyme activity. Despite this, our results indicate that focusing exclusively on predicted pockets does not consistently improve predictive performance. One significant factor is the accuracy of pocket detection, as evidenced by our analysis using the fpocket tool. The findings suggest a substantial proportion of the identified pockets may not correspond to the actual active sites, directly impacting the model's training and subsequent predictions.
+
+These experiments reveals the trade-offs between model complexity, biological relevance, and computational practicality. While the concept of targeting protein pockets aligns with biological intuition, the practical challenges, including accurate pocket identification and the representation of pockets in computational models, limit its current effectiveness.
+
+In light of these findings, our future work will aim to develop a hybrid approach that integrates both sequence and structural information. The limitations observed in models relying solely on either sequence or structure suggest that a combined strategy may offer a more robust framework for capturing the complexities of enzyme-substrate interactions.

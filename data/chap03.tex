@@ -36,16 +36,16 @@ amino acid cannot be determined. It also has a padding token <pad>, an unknown t
 token </s> to indicate the end of the sequence, and some additional tokens for special cases.
 
 Hence, all protein sequences are first truncated or padded to length 1023 and then tokenized to have inputs of
-length 1024: 1023 amino acids or pad tokens <pad> and the end token </s>. This input can be used for downstream
+length 1024: 1023 amino acids and pad tokens <pad> if necessary, as well as the end token </s>. This input can be used for downstream
 applications.
 
 We are also given a substrate string in its SMILES form. This can be defined as a $S=c_1c_2c_3...c_n$
 where $c_i$ represents the chemical symbol for the atom at position $i\in\{1,...,n\}$ in the SMILES
-sequence, or a symbol representing a bond or branching in the molecule.
+sequence, where a symbol representing a bond or branching in the molecule.
 
 Similarly, it first needs to be processed in a format that can be processed by a statistical model. To do so,
 we use the Morgan Fingerprints that represent a small molecule in a way that can easily be used for computational
-tasks such as ours. We selected a vector size of 1024 to be consistent with the size of the protein sequence. We
+tasks such as ours. \cite{Capecchi2020} We selected a vector size of 1024 to be consistent with the size of the protein sequence. We
 also choose to use a radius size of 1, indicating that each atom of the molecule is updated only once based on its
 immediate neighbors.
 
@@ -60,8 +60,8 @@ The protein encoder is composed of the ProtT5-XL model to which we relaxed the 2
 Relaxing is a selective fine-tuning strategy that allows to slightly adjust certains weights of a pretrained model 
 to better perfom on our specific task. The decision of relaxing only the 2 last layers of the model is based on
 the assumption that these layers contain the most task-specific information, while ealiest layers usually capture
-universal features. This not only render the training faster are only a few weights need to be updated during the
-fine-tuning process while still making the model adapted to our specific task.
+universal features. This not only render the training faster as only a few weights need to be updated during the
+fine-tuning process but also allow the model to adapt to our specific task.
 
 The protein encoder output a matrix of size $1024\times 1024$ with the first one being the length of the sequence,
 padded or not, and the second being the embedding dimension which is 1024. Technically, this mean that every
@@ -70,7 +70,7 @@ and not per amino acid, we use the common technique of averaging on the amino ac
 single vector of length 1024.
 
 The substrate encoder for this model is simply a dummy model that does not modify the input as it was already
-processed as a Morgan Fingerprints, which is already a reprensetation of the substrate as a vector of length 1024.
+processed as a Morgan Fingerprint, which is already a reprensetation of the substrate as a vector of length 1024.
 
 Finally, the interactor is a multilayer perceptron of 2 dense layers of size 256 and 128. It takes as input the
 concatenated protein embedding and substrate embedding and pass it through these 2 layers to finally output a single
@@ -100,7 +100,7 @@ Finally, after looking at the best metrics for the validation test, we reverted 
 
  \section{Results}
 
- Using the model and the training strategy presented above, we obtain a MSE of 0.700 and a $r^2$ of 0.493, making our model better than only one of the four models in our benchmark. We also obtain the following hot/cold results for the test set:
+ Using the model and the training strategy presented above, we obtain a MSE of 0.700 and a $r^2$ of 0.493, making our model better than only one of the four models in our benchmark. We also obtain the hot/cold results for the test set that are in the Table \ref{tab:seqkm_results}.
 
  \begin{table}[ht]
   \centering
@@ -117,15 +117,15 @@ Finally, after looking at the best metrics for the validation test, we reverted 
 
  The general performance of SeqKm, when analyzed under the hot/cold framework, reveals a nuanced picture of its predictive capabilities, especially in comparison to ProSmith.
 
- Firstly, the overall pattern shows that SeqKm, like ProSmith, performs better with hot substrates compared to cold substrates, indicating a potential reliance on known substrate information for making accurate predictions. Specifically, the results for hot proteins and hot substrates yield an MSE of 0.642 and an correlation coefficient $r^2$ of 0.485, slightly worse than what was observed for ProSmith, where an MSE of 0.534 and an correlation coefficient $r^2$ of 0.572 were recorded under similar conditions. This suggests that SeqKm may not utilize protein information as effectively as ProSmith, or it might be more sensitive to variations in substrate quality.
+ Firstly, the overall pattern shows that SeqKm, like ProSmith, performs better with hot substrates compared to cold substrates, indicating a potential reliance on known substrate information for making accurate predictions. Specifically, the results for hot proteins and hot substrates yield an MSE of 0.642 and an coefficient of determination $r^2$ of 0.485, slightly worse than what was observed for ProSmith, where an MSE of 0.534 and an coefficient of determination $r^2$ of 0.572 were recorded under similar conditions. This suggests that SeqKm may not utilize protein information as effectively as ProSmith, or it might be more sensitive to variations in substrate quality.
  
- Moreover, the performance dip for SeqKm becomes more pronounced with cold proteins, regardless of whether the substrate is hot or cold. This is particularly evident in the drastic drop to an correlation coefficient $r^2$ of -0.004 for cold proteins and cold substrates, even lower than ProSmith's already disappointing performance in this category. Such results underscore a significant challenge for SeqKm in generalizing to completely unseen protein-substrate pairs.
+ Moreover, the performance dip for SeqKm becomes more pronounced with cold proteins, regardless of whether the substrate is hot or cold. This is particularly evident in the drastic drop to an coefficient of determination $r^2$ of -0.004 for cold proteins and cold substrates, even lower than ProSmith's already disappointing performance in this category. Such results underscore a significant challenge for SeqKm in generalizing to completely unseen protein-substrate pairs.
  
- However, a surprising aspect of SeqKm's performance is observed in its handling of hot substrates paired with cold proteins, where it achieves an correlation coefficient $r^2$ of 0.536. This is almost as good as ProSmith's performance under similar conditions.
+ However, a surprising aspect of SeqKm's performance is observed in its handling of hot substrates paired with cold proteins, where it achieves an coefficient of determination $r^2$ of 0.536. This is almost as good as ProSmith's performance under similar conditions.
  
  The analysis of SeqKm, alongside with ProSmith's outcomes, raises important considerations about the current state of Michaelis constant prediction models. While SeqKm exhibits a comparative ease of training and potentially faster prediction times due to the lack of a pre-training requirement, its ability to generalize across completely novel enzyme-substrate interactions remains limited. This limitation is crucial, especially in the context of drug discovery and enzyme engineering, where the ability to accurately predict the behavior of uncharacterized proteins is invaluable.
 
-For the new test set, we obtain a global MSE of 0.973 and correlation coefficient $r^2$ of 0.447:
+For the new test set, we obtain a global MSE of 0.973 and coefficient of determination $r^2$ of 0.447, as well as the hot/cold results in Table \ref{tab:seqkm_new_test}.
 
 \begin{table}[ht]
   \centering
@@ -137,15 +137,27 @@ For the new test set, we obtain a global MSE of 0.973 and correlation coefficien
   \textbf{Cold protein} & 1117 & 0.884 & 0.478 & 102 & 2.066 & -0.006 \\ \hline
   \end{tabular}
   \caption{SeqKm results on the new test set}
-  \label{tab:updated_summary_performance}
+  \label{tab:seqkm_new_test}
 \end{table}
 
 For the general metrics, we obtain results that are closer to ProSmith for the new test set, even though still below. We notice that whereas ProSmith had a correlation coefficent $r^2$ go from 0.563 to 0.467 (20\% drop) between the test set and the new test set. While are results are inferior, from 0.493 to 0.447 (10\%), the drop in percentage is twice as small, indicating that our model is more robust to new samples.
 
 Furthermore, we notice that similarly to ProSmith, the results are better for cold proteins and hot substrates than for hot proteins and substrates, which indicates that our sequence-based model seems to deal with the same problems than ProSmith, in additional to smaller results in general.
 
-We also have the same pattern for the hot proteins and cold substrates. While the MSE is relatively small compared to the other groups, the correlation coefficient $r^2$ is negative and even larger than ProSmith's. This indicates that our model cannot properly predict the Michaelis constant when the protein is known but the substrate is unknown, and even produce values that are inversely proportional, which would be a huge problem for wet-lab experiments.
+We also have the same pattern for the hot proteins and cold substrates. While the MSE is relatively small compared to the other groups, the coefficient of determination $r^2$ is negative and even larger than ProSmith's. This indicates that our model cannot properly predict the Michaelis constant when the protein is known but the substrate is unknown, and even produce values that are inversely proportional, which would be a huge problem for wet-lab experiments.
 
 Finally, we also obtain poor performance for the cold proteins and cold substrates group, indicating once again that our model, similarly to ProSmith, is incapable of generalizing properly to completely unseen samples.
 
-Following the analysis of sequence-based models for Michaelis constant prediction on both the test and new test datasets, we conclude that a sequence-based approach is alone not enough to predict properly the Michaelis constant. Hence, our attention now shifts towards exploring structure-based methods. Given the limitations observed in the current models' ability to generalize across novel enzyme-substrate interactions, investigating structure-based approaches presents a promising avenue for enhancing predictive accuracy. By leveraging the detailed spatial information inherent in protein and substrate structures, we aim to ascertain whether these methods can surpass the performance of sequence-based models, potentially offering a more robust solution for predicting enzyme kinetics.
+\section{Conclusion}
+
+The analysis of SeqKm and ProSmith's performance on both the original and new test sets offers insightful observations into the capabilities and limitations of current models in predicting Michaelis constants for enzyme-substrate interactions. Here's a general conclusion drawn from the comparative study:
+
+SeqKm demonstrates a commendable effort in addressing the challenge of predicting enzyme kinetics through a sequence-based model, showcasing a nuanced understanding of substrate-protein interactions. Its comparative ease of training and potentially faster prediction times, attributed to the absence of a pre-training requirement, represent significant advantages, particularly in scenarios requiring rapid model deployment or retraining.
+
+However, similarly to ProSmith, SeqKm reveals certain limitations in generalization, especially notable in scenarios involving completely novel enzyme-substrate pairs (cold proteins and cold substrates). The observed performance dips in these categories highlight a critical area for future improvement, emphasizing the need for models that can accurately predict interactions beyond the scope of their training datasets.
+
+Interestingly, SeqKm's relative robustness to new samples, as evidenced by a smaller percentage drop in coefficient of determination ($r^2$) between the test set and the new test set, suggests a potential for greater stability across varied datasets. This robustness, however, does not offset its overall lower performance compared to ProSmith, indicating that while SeqKm is on a promising path, it has yet to fully realize the predictive accuracy and reliability achieved by ProSmith.
+
+The pattern of results, particularly the inverse correlation observed in hot proteins with cold substrates and the overall poor performance in completely unseen samples, underscores a prevalent challenge across both models: the difficulty of accurately modeling the kinetic behavior of unknown interactions. This challenge is paramount in applications like drug discovery and enzyme engineering, where predictive insights into uncharacterized proteins can significantly expedite research and development processes.
+
+In conclusion, while SeqKm marks a valuable step forward in the application of deep learning to enzymology, its current iteration falls short of outperforming ProSmith in several key areas. Furthermore, we note that a sequence-based approach is alone not enough to predict properly the Michaelis constant. Hence, our attention now shifts towards exploring structure-based methods. Given the limitations observed in the current models' ability to generalize across novel enzyme-substrate interactions, investigating structure-based approaches presents a promising avenue for enhancing predictive accuracy. By leveraging the detailed spatial information inherent in protein and substrate structures, we aim to ascertain whether these methods can surpass the performance of sequence-based models, potentially offering a more robust solution for predicting enzyme kinetics.
